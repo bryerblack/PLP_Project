@@ -87,10 +87,13 @@ getInput = do
 
 -- ler um caracter sem aparecer na tela
 getCh :: IO Char
-getCh = do hSetEcho stdin False
-           x <- getChar
-           hSetEcho stdin True
-           return x
+getCh = do 
+    hSetBuffering stdin NoBuffering
+    hSetEcho stdin False
+    x <- getChar
+    hSetEcho stdin True
+    hSetBuffering stdin LineBuffering
+    return x
 
 changeSelect:: Int -> Int -> Char -> Int
 changeSelect nOfOpt select direction
