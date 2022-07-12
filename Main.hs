@@ -1,7 +1,7 @@
 --P.L.P. - 2021.2
 --Jogo da Velha
 
-import TicTacToe 
+import Classico 
 import MarcaTres 
 import CorridaVelha
 
@@ -24,7 +24,7 @@ main = do
             selectPlayer <- startSelect titleGame ["Contra jogador", "Contra máquina"]
             selectModo <- startSelect titleGame ["Iniciar partida", "Modo insano"]
 
-            TicTacToe.startGame selectPlayer selectModo symbols
+            Classico.startGame selectPlayer selectModo symbols
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
             main
