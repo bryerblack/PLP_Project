@@ -4,6 +4,7 @@ module Util (
     printBoard,
     transformeCell,
     assignCell,
+    checkBoardFree
 )
 where
 
