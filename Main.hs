@@ -32,7 +32,7 @@ main = do
         2 -> do
             let titleGame = "---------- JOGO MARCA-TRÊS ----------"
             selectPlayer <- startSelect titleGame ["Contra jogador", "Contra máquina"]
-            selectModo <- startSelect titleGame ["Iniciar partida", "Modo insano"]
+            selectModo <- startSelect titleGame ["Iniciar partida 5x5", "Iniciar partida 7x7"]
 
             MarcaTres.startGame selectPlayer selectModo symbols
             putStr "\nPressione <Enter> para continuar...\n\n"
