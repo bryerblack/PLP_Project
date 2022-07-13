@@ -38,8 +38,8 @@ printBoard (x,y) board = "     " ++
                         unwords (fmap show [1 .. x]) ++
                         "\n" ++ renderBoard 1 x y board
 
-
-
+checkBoardFree::[Cell] -> Bool
+checkBoardFree board = Empty `notElem` board
 
 verifyIsFree::  [Cell] -> Int -> Int -> Int -> Bool
 verifyIsFree board _ xPos 1 = board !! (xPos-1) == Empty

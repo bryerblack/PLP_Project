@@ -50,7 +50,11 @@ playRound player turn symbols board dim = do
         putStrLn $ replicate 4 '\n' ++ printBoard dim newBoard
         putStrLn $ "Vencedor! " ++ getPlayer player turn ++ " " ++ [syb] ++ " venceu!\n\n"
         return ()
-      else putStrLn msg >> playRound player newTurn symbols newBoard dim
+      else if checkBoardFree newBoard then do
+        putStrLn $ replicate 4 '\n' ++ printBoard dim newBoard
+        putStrLn "Empate!!\n\n" 
+        return ()
+        else putStrLn msg >> playRound player newTurn symbols newBoard dim
 
 
 getInput:: IO (Int, Int)
