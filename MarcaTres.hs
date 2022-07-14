@@ -10,7 +10,7 @@ startGame:: Int -> Int -> [Char] -> [(Int,Int)] -> (Int, Int) -> IO ()
 startGame player modo symbols movMachine dim
   | modo == 1 = playRound player 1 symbols board dim movMachine   -- jogar modo normal
   | otherwise = putStrLn "modo insano: nao tem nada"                 -- jogar modo insano
-    where board = replicate 25 Empty
+    where board = replicate (uncurry (*) dim) Empty
 
 
 
