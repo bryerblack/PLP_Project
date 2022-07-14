@@ -74,12 +74,12 @@ main = do
                             else shuffle $ createMove (9,4)
 
             if selectSymbols == 2 
-                then CorridaVelha.startGame selectPlayer selectModo "XO" 
+                then CorridaVelha.startGame selectPlayer selectModo "XO" movMachine
                 else do
                     putStrLn "Digite os simbolos: "
                     syb <- getSymbol
                     let symbols = head syb : [last syb]
-                    CorridaVelha.startGame selectPlayer selectModo symbols
+                    CorridaVelha.startGame selectPlayer selectModo symbols movMachine
 
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
