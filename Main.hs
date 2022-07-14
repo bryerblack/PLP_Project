@@ -46,18 +46,17 @@ main = do
             selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
             selectDim <- startSelect titleGame "Dimensão:" ["5x5", "7x7"]
             
-            let dim = if selectDim == 1
-                            then (5,5)
-                            else (7,7)
-            movMachine <- shuffle $ createMove dim
+            movMachine <- if selectDim == 1 
+                            then shuffle $ createMove (5,5)
+                            else shuffle $ createMove (7,7)
             
             if selectSymbols == 2 
-                then MarcaTres.startGame selectPlayer selectModo "XO" movMachine dim
+                then MarcaTres.startGame selectPlayer selectModo "XO" 
                 else do
                     putStrLn "Digite os simbolos: "
                     syb <- getSymbol
                     let symbols = head syb : [last syb]
-                    MarcaTres.startGame selectPlayer selectModo symbols movMachine dim
+                    MarcaTres.startGame selectPlayer selectModo symbols 
             
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
