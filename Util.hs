@@ -4,7 +4,8 @@ module Util (
     printBoard,
     transformeCell,
     assignCell,
-    checkBoardFree
+    checkBoardFree,
+    verifyIsFree
 )
 where
 
@@ -42,9 +43,9 @@ printBoard (x,y) board = "     " ++
 checkBoardFree::[Cell] -> Bool
 checkBoardFree board = Empty `notElem` board
 
-verifyIsFree::  [Cell] -> Int -> Int -> Int -> Bool
-verifyIsFree board _ xPos 1 = board !! (xPos-1) == Empty
-verifyIsFree board col xPos yPos = verifyIsFree (drop col board) col xPos (yPos-1)
+verifyIsFree::  [Cell] -> Int -> (Int, Int) -> Bool
+verifyIsFree board _ (xPos, 1) = board !! (xPos-1) == Empty
+verifyIsFree board col (xPos, yPos) = verifyIsFree (drop col board) col (xPos, yPos-1)
 
 -- faz a substituição da peça
 transformeCell:: Char -> [Cell] -> Int -> Int -> Int -> [Cell]
@@ -54,9 +55,9 @@ transformeCell syb board col xPos yPos = take col board ++ transformeCell syb (d
 -- faz a verificação do espaço vazio e a substituição da peça
 assignCell:: (Int, Int) -> Char -> [Cell] -> (Int, Int) -> CellTransform
 assignCell (xPos, yPos) symbol board (col, lin)=
-    if verifyIsFree board col xPos yPos 
-            then Success randomMessage (transformeCell symbol board col xPos yPos) 
-            else Fail "Inválido!" board
+    if (xPos <= col && yPos <= lin) && verifyIsFree board col (xPos, yPos) 
+        then Success randomMessage (transformeCell symbol board col xPos yPos) 
+        else Fail "Inválido!" board
 
 randomMessage:: String
 randomMessage = "OK!"
