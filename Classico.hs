@@ -42,10 +42,11 @@ playRound player turn symbols board dim movMachine = do
   putStrLn $ replicate 4 '\n'
 
   case round of
-    Fail err board -> do
-      putStrLn $ err ++ " Tente novamente."
+    Fail board -> do
+      putStrLn "Inválido! Tente novamente."
       playRound player turn symbols board dim movMachine
-    Success msg newBoard -> do
+    Success newBoard -> do
+      putStrLn $ printMsg dim (fst $ head movMachine)
       let newTurn = if turn == 1 then 2 else 1
       if isThereAWinner syb newBoard then do
         putStrLn $ replicate 4 '\n' ++ printBoard dim newBoard
@@ -55,7 +56,7 @@ playRound player turn symbols board dim movMachine = do
         putStrLn $ replicate 4 '\n' ++ printBoard dim newBoard
         putStrLn "Empate!!\n\n"
         return ()
-        else putStrLn msg >> playRound player newTurn symbols newBoard dim movMachine
+        else playRound player newTurn symbols newBoard dim (tail movMachine)
 
 
 roundMachine:: Char -> [Cell] -> (Int, Int) -> [(Int, Int)] -> IO CellTransform
@@ -100,6 +101,7 @@ isThereAWinner syb board =
     board !! 6 == (Occupied syb) && board !! 4 == (Occupied syb) && board !! 2 == (Occupied syb)
   ]
 
+-- percorre lista de movimentos até encontrar um que estaja livre
 verifyMove:: [Cell] -> Int -> [(Int,Int)] -> (Int, Int)
 verifyMove board col moves = if verifyIsFree board col (head moves)
     then head moves
