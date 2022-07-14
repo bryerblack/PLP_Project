@@ -10,6 +10,7 @@ import System.IO
 import Control.Monad (forever)
 import Control.Monad.Trans.Select (select)
 import Data.Functor (void)
+import System.Random (randomRIO)
 
 
 
@@ -24,13 +25,15 @@ main = do
             selectModo <- startSelect titleGame "Modo:" ["Normal", "Insano"]
             selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
 
+            movMachine <- shuffle $ createMove (3,3)
+            
             if selectSymbols == 2 
-                then Classico.startGame selectPlayer selectModo "XO"
+                then Classico.startGame selectPlayer selectModo "XO" movMachine
                 else do
                     putStrLn "Digite os simbolos: "
                     syb <- getSymbol
                     let symbols = head syb : [last syb]
-                    Classico.startGame selectPlayer selectModo symbols
+                    Classico.startGame selectPlayer selectModo symbols movMachine
 
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
@@ -41,14 +44,20 @@ main = do
             selectPlayer <- startSelect titleGame "Jogar contra:" ["Jogador", "Máquina"]
             selectModo <- startSelect titleGame "Modo:" ["Normal", "Insano"]
             selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
-
+            selectDim <- startSelect titleGame "Dimensão:" ["5x5", "7x7"]
+            
+            let dim = if selectDim == 1
+                            then (5,5)
+                            else (7,7)
+            movMachine <- shuffle $ createMove dim
+            
             if selectSymbols == 2 
-                then MarcaTres.startGame selectPlayer selectModo "XO"
+                then MarcaTres.startGame selectPlayer selectModo "XO" movMachine dim
                 else do
                     putStrLn "Digite os simbolos: "
                     syb <- getSymbol
                     let symbols = head syb : [last syb]
-                    MarcaTres.startGame selectPlayer selectModo symbols
+                    MarcaTres.startGame selectPlayer selectModo symbols movMachine dim
             
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
@@ -59,9 +68,14 @@ main = do
             selectPlayer <- startSelect titleGame "Jogar contra:" ["Jogador", "Máquina"]
             selectModo <- startSelect titleGame "Modo:" ["Normal", "Insano"]
             selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
+            selectDim <- startSelect titleGame "Dimensão:" ["7x3 - 3 Jogadores", "9x4 - 4 Jogadores"]
+            
+            movMachine <- if selectDim == 1 
+                            then shuffle $ createMove (7,3)
+                            else shuffle $ createMove (9,4)
 
             if selectSymbols == 2 
-                then CorridaVelha.startGame selectPlayer selectModo "XO"
+                then CorridaVelha.startGame selectPlayer selectModo "XO" 
                 else do
                     putStrLn "Digite os simbolos: "
                     syb <- getSymbol
@@ -145,5 +159,15 @@ selection strTitle strMsg nOfOpt strChoice select = do
         _ -> let newSelect = changeSelect nOfOpt select input
                     in selection strTitle strMsg nOfOpt strChoice newSelect
 
+createMove:: (Int, Int) -> [(Int, Int)]
+createMove (xDim,yDim) = [(x,y) | x <- [1..xDim], y <- [1..yDim]]
 
+shuffle :: [(Int,Int)] -> IO [(Int,Int)]
+shuffle list = if length list < 2
+        then return list
+        else do
+                i <- randomRIO (0, length list-1)
+                newList <- shuffle (take i list ++ drop (i+1) list)
+                return (list!!i : newList)
+                -- [(1,2), (2,2), (1,1)]
 
