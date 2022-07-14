@@ -5,7 +5,8 @@ module Util (
     transformeCell,
     assignCell,
     checkBoardFree,
-    verifyIsFree
+    verifyIsFree,
+    printMsg
 )
 where
 
@@ -14,7 +15,7 @@ import Data.Type.Coercion (sym)
 import System.Random
 
 
-data CellTransform = Success String [Cell] | Fail String [Cell]
+data CellTransform = Success [Cell] | Fail [Cell]
 
 data Cell = Occupied Char | Empty
                 deriving(Eq)
@@ -56,8 +57,10 @@ transformeCell syb board col xPos yPos = take col board ++ transformeCell syb (d
 assignCell:: (Int, Int) -> Char -> [Cell] -> (Int, Int) -> CellTransform
 assignCell (xPos, yPos) symbol board (col, lin)=
     if (xPos <= col && yPos <= lin) && verifyIsFree board col (xPos, yPos) 
-        then Success randomMessage (transformeCell symbol board col xPos yPos) 
-        else Fail "Inválido!" board
+        then Success  (transformeCell symbol board col xPos yPos) 
+        else Fail board
 
-randomMessage:: String
-randomMessage = "OK!"
+
+printMsg:: (Int, Int) -> Int -> String
+printMsg (xDim,yDim) num =  take (xDim*yDim) (cycle ["OK!", "Boa Jogada!", "Sensacional!"]) !! (num-1)
+-- passar num como o primeiro inteiro da tupla do movimentos da máquina, para retorna uma mensagem aleatória.
