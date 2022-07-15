@@ -6,10 +6,8 @@ where
 import Util
 
 
-startGame:: Int -> Int -> [Char] -> [(Int,Int)] -> IO ()
-startGame player modo symbols movMachine
-  | modo == 1 = playRound player 1 symbols board (3,3) movMachine   -- jogar modo normal
-  | otherwise = putStrLn "modo insano: nao tem nada"                 -- jogar modo insano
+startGame:: Int ->  [Char] -> [(Int,Int)] -> IO ()
+startGame player symbols = playRound player 1 symbols board (3,3)
     where board = replicate 9 Empty
 
 
@@ -45,7 +43,7 @@ playRound player turn symbols board dim movMachine = do
     Fail board -> do
       putStrLn "Inválido! Tente novamente."
       playRound player turn symbols board dim movMachine
-    Success newBoard -> do
+    Success newBoard pos -> do
       putStrLn $ printMsg dim (fst $ head movMachine)
       let newTurn = if turn == 1 then 2 else 1
       if isThereAWinner syb newBoard then do
