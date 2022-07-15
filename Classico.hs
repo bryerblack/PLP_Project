@@ -6,10 +6,8 @@ where
 import Util
 
 
-startGame:: Int -> Int -> [Char] -> [(Int,Int)] -> IO ()
-startGame player modo symbols movMachine
-  | modo == 1 = playRound player 1 symbols board (3,3) movMachine   -- jogar modo normal
-  | otherwise = putStrLn "modo insano: nao tem nada"                 -- jogar modo insano
+startGame:: Int ->  [Char] -> [(Int,Int)] -> IO ()
+startGame player symbols = playRound player 1 symbols board (3,3)
     where board = replicate 9 Empty
 
 
