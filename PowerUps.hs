@@ -8,10 +8,10 @@ import Util
       printMsg,
       transformeCell )
 
-removeJogada:: Char -> [Cell] -> Int -> (Int, Int) -> [Cell]
+{-removeJogada:: Char -> [Cell] -> Int -> (Int, Int) -> [Cell]
 removeJogada syb board col dim = do
   putStrLn "Digite a posição a remover: "
-  transformeCell Empty board col <$> getLine
+  transformeCell Empty board col <$> getLine -}
 
 blip:: [Cell] -> (Int, Int) -> [Cell]
 blip board dim = do

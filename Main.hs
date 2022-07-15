@@ -23,18 +23,17 @@ main = do
         1 -> do
             let titleGame = "---------- JOGO CLASSICO ----------"
             selectPlayer <- startSelect titleGame "Jogar contra:" ["Jogador", "Máquina"]
-            selectModo <- startSelect titleGame "Modo:" ["Normal", "Insano"]
             selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
 
             movMachine <- shuffle $ createMove (3,3)
 
             if selectSymbols == 2
-                then Classico.startGame selectPlayer selectModo "XO" movMachine
+                then Classico.startGame selectPlayer "XO" movMachine
                 else do
                     putStrLn "Digite os simbolos: "
                     syb <- getSymbol 2
                     let symbols = head syb : [last syb]
-                    Classico.startGame selectPlayer selectModo symbols movMachine
+                    Classico.startGame selectPlayer symbols movMachine
 
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
@@ -43,7 +42,6 @@ main = do
         2 -> do
             let titleGame = "---------- JOGO MARCA-TRÊS ----------"
             selectPlayer <- startSelect titleGame "Jogar contra:" ["Jogador", "Máquina"]
-            selectModo <- startSelect titleGame "Modo:" ["Normal", "Insano"]
             selectDim <- startSelect titleGame "Dimensão:" ["5x5", "7x7"]
             selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
 
@@ -53,12 +51,12 @@ main = do
             movMachine <- shuffle $ createMove dim
 
             if selectSymbols == 2
-                then MarcaTres.startGame selectPlayer selectModo "XO" movMachine dim
+                then MarcaTres.startGame selectPlayer "XO" movMachine dim
                 else do
                     putStrLn "Digite os simbolos: "
                     syb <- getSymbol 2
                     let symbols = head syb : [last syb]
-                    MarcaTres.startGame selectPlayer selectModo symbols movMachine dim
+                    MarcaTres.startGame selectPlayer symbols movMachine dim
 
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
@@ -66,23 +64,21 @@ main = do
 
         3 -> do
             let titleGame = "---------- JOGO CORRIDA VELHA ----------"
-            selectPlayer <- startSelect titleGame "Jogar contra:" ["Jogador", "Máquina"]
-            selectModo <- startSelect titleGame "Modo:" ["Normal", "Insano"]
             selectDim <- startSelect titleGame "Dimensão:" ["7x3 - 3 Jogadores", "9x4 - 4 Jogadores"]
             selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
 
             let dim@(x, y) = if selectDim == 1
                             then (3,7)
                             else (4,9)
-            movMachine <- shuffle $ createMove dim
+            movMachine <- shuffle $ take (x*y) (cycle [0..x])
 
             if selectSymbols == 2
-                then CorridaVelha.startGame selectPlayer selectModo "XOAY" movMachine dim
+                then CorridaVelha.startGame (take x "XOAY") movMachine dim
                 else do
                     putStrLn "Digite os simbolos: "
                     syb <- getSymbol x
                     let symbols = syb
-                    CorridaVelha.startGame selectPlayer selectModo symbols movMachine dim
+                    CorridaVelha.startGame symbols movMachine dim
 
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
@@ -170,7 +166,7 @@ selection strTitle strMsg nOfOpt strChoice select = do
 createMove:: (Int, Int) -> [(Int, Int)]
 createMove (xDim,yDim) = [(x,y) | x <- [1..xDim], y <- [1..yDim]]
 
-shuffle :: [(Int,Int)] -> IO [(Int,Int)]
+shuffle :: [a] -> IO [a]
 shuffle list = if length list < 2
         then return list
         else do

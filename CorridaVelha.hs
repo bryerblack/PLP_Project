@@ -114,4 +114,3 @@ verifyMove:: [Cell] -> Int -> [(Int,Int)] -> (Int, Int)
 verifyMove board col moves = if verifyIsFree board col (head moves)
     then head moves
     else verifyMove board col (tail moves)
-
