@@ -4,6 +4,13 @@ module MarcaTres (
 where
 
 import Util
+    ( assignCell,
+      checkBoardFree,
+      printBoard,
+      verifyIsFree,
+      Cell(..),
+      CellTransform(..),
+      printMsg )
 
 
 startGame:: Int -> Int -> [Char] -> [(Int,Int)] -> (Int, Int) -> IO ()
