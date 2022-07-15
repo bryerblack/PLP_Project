@@ -45,7 +45,7 @@ playRound player turn symbols board dim movMachine = do
     Fail board -> do
       putStrLn "Inválido! Tente novamente."
       playRound player turn symbols board dim movMachine
-    Success newBoard -> do
+    Success newBoard pos -> do
       putStrLn $ printMsg dim (fst $ head movMachine)
       let newTurn = if turn == 1 then 2 else 1
       if isThereAWinner syb newBoard then do
