@@ -8,12 +8,12 @@ import Util
       printMsg,
       transformeCell )
 
-removeJogada:: Char -> [Cell] -> (Int, Int) -> IO CellTransform
-removeJogada syb board dim = do
+removeJogada:: Char -> [Cell] -> Int -> (Int, Int) -> [Cell]
+removeJogada syb board col dim = do
   putStrLn "Digite a posição a remover: "
-  cell <- getLine
-  return $ transformeCell Empty board 1 cell 0x1
+  transformeCell Empty board col <$> getLine
 
 blip:: [Cell] -> (Int, Int) -> [Cell]
 blip board dim = do
     replicate (uncurry (*) dim) Empty
+

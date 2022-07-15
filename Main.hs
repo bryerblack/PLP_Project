@@ -1,8 +1,8 @@
 --P.L.P. - 2021.2
 --Jogo da Velha
 
-import Classico 
-import MarcaTres 
+import Classico
+import MarcaTres
 import CorridaVelha
 
 import System.Exit (exitSuccess)
@@ -11,6 +11,7 @@ import Control.Monad (forever)
 import Control.Monad.Trans.Select (select)
 import Data.Functor (void)
 import System.Random (randomRIO)
+import StringBuffer (StringBuffer(len))
 
 
 
@@ -26,12 +27,12 @@ main = do
             selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
 
             movMachine <- shuffle $ createMove (3,3)
-            
-            if selectSymbols == 2 
+
+            if selectSymbols == 2
                 then Classico.startGame selectPlayer selectModo "XO" movMachine
                 else do
                     putStrLn "Digite os simbolos: "
-                    syb <- getSymbol
+                    syb <- getSymbol 2
                     let symbols = head syb : [last syb]
                     Classico.startGame selectPlayer selectModo symbols movMachine
 
@@ -43,22 +44,22 @@ main = do
             let titleGame = "---------- JOGO MARCA-TRÊS ----------"
             selectPlayer <- startSelect titleGame "Jogar contra:" ["Jogador", "Máquina"]
             selectModo <- startSelect titleGame "Modo:" ["Normal", "Insano"]
-            selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
             selectDim <- startSelect titleGame "Dimensão:" ["5x5", "7x7"]
-            
+            selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
+
             let dim = if selectDim == 1
                             then (5,5)
                             else (7,7)
             movMachine <- shuffle $ createMove dim
-            
-            if selectSymbols == 2 
+
+            if selectSymbols == 2
                 then MarcaTres.startGame selectPlayer selectModo "XO" movMachine dim
                 else do
                     putStrLn "Digite os simbolos: "
-                    syb <- getSymbol
+                    syb <- getSymbol 2
                     let symbols = head syb : [last syb]
                     MarcaTres.startGame selectPlayer selectModo symbols movMachine dim
-            
+
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
             main
@@ -67,19 +68,19 @@ main = do
             let titleGame = "---------- JOGO CORRIDA VELHA ----------"
             selectPlayer <- startSelect titleGame "Jogar contra:" ["Jogador", "Máquina"]
             selectModo <- startSelect titleGame "Modo:" ["Normal", "Insano"]
-            selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
             selectDim <- startSelect titleGame "Dimensão:" ["7x3 - 3 Jogadores", "9x4 - 4 Jogadores"]
-            
-            let dim = if selectDim == 1
+            selectSymbols <- startSelect titleGame "Deseja mudar os simbolos dos jogadores?" ["Sim", "Não"]
+
+            let dim@(x, y) = if selectDim == 1
                             then (3,7)
                             else (4,9)
             movMachine <- shuffle $ createMove dim
 
-            if selectSymbols == 2 
-                then CorridaVelha.startGame selectPlayer selectModo "XOU" movMachine dim
+            if selectSymbols == 2
+                then CorridaVelha.startGame selectPlayer selectModo "XOAY" movMachine dim
                 else do
                     putStrLn "Digite os simbolos: "
-                    syb <- getSymbol
+                    syb <- getSymbol x
                     let symbols = syb
                     CorridaVelha.startGame selectPlayer selectModo symbols movMachine dim
 
@@ -88,7 +89,7 @@ main = do
             main
 
         4 -> exitSuccess
-        _ -> return () 
+        _ -> return ()
 
 
 menu:: [String]
@@ -99,7 +100,7 @@ menu = ["Jogo Clássico",
 
 
 createScreen:: [Char] -> [Char] -> [Char] -> [Char]
-createScreen strTitle strMsg strChoice = 
+createScreen strTitle strMsg strChoice =
     strTitle ++
     "\n\n w / s - mover cursor" ++
     replicate (10 - length(lines strChoice)) '\n' ++
@@ -121,7 +122,7 @@ getInput = do
 
 -- ler um caracter sem aparecer na tela
 getCh :: IO Char
-getCh = do 
+getCh = do
     hSetBuffering stdin NoBuffering
     hSetEcho stdin False
     x <- getChar
@@ -130,13 +131,19 @@ getCh = do
     return x
 
 -- Evitar escolha de simbolos iguais
-getSymbol:: IO String
-getSymbol = do
+getSymbol::Int -> IO String
+getSymbol n = do
     syb <- getLine
-    let symbols = head syb : [last syb] 
-    if head syb == last syb 
-        then putStrLn "Simbolos iguais. Tente novamente." >> getSymbol
-        else return symbols
+    let symbols = [c | c <- syb, c /= ' ']
+    if length symbols /= n
+        then putStrLn "Quantidade errada de simbolos. Tente novamente." >> getSymbol n
+        else if equalSyb symbols
+            then putStrLn "Simbolos iguais. Tente novamente." >> getSymbol n
+            else return symbols
+
+equalSyb :: [Char] -> Bool
+equalSyb [] = False
+equalSyb (x:xs) = elem x xs || equalSyb xs
 
 changeSelect:: Int -> Int -> Char -> Int
 changeSelect nOfOpt select direction
