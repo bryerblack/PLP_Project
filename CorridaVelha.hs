@@ -98,7 +98,6 @@ roundPlayer syb board dim = do
   if Occupied syb `elem`board
     then do
       let line = verifyNextLine dim board syb 
-      putStrLn (show line)
       return $ assignCell (cell, line-1) syb board dim
     else do
       let line = (snd dim)
