@@ -79,7 +79,7 @@ playRound player turn symbols board dim movMachine = do
 roundMachine:: [Cell] -> (Int,Int) -> [Int] -> IO [Cell]
 roundMachine board dim moves  
   | head moves == 0 = do 
-    putStrLn "Laser não destruiu coluna!!"
+    putStrLn "Laser Pifou! Nenhuma coluna destruida!!"
     return board
   | otherwise = do
     putStrLn $ "Laser destruiu coluna " ++ show (head moves) ++ "!!"
@@ -90,7 +90,7 @@ deleteColumn _ _ 0 board = board
 deleteColumn delCol (xDim, yDim) i board = 
   deleteColumn delCol (xDim, yDim) (i-1) (transformeCell Empty  board xDim delCol i)
 
-
+{-
 roundPlayer:: Char -> [Cell] -> (Int, Int) -> IO CellTransform
 roundPlayer syb board dim = do
   putStrLn "Digite a posição: "
@@ -102,6 +102,28 @@ getInput = do
   cell <- getLine
   let c = map (read . pure :: Char -> Int) (head cell : [last cell])
   return (head c,last c)
+-}
+
+
+roundPlayer:: Char -> [Cell] -> (Int, Int) -> IO CellTransform
+roundPlayer syb board dim = do
+  putStrLn "Escolha a próxima coluna: "
+  cell <- getInput
+  if Occupied syb `elem`board
+    then do
+      let line = verifyNextLine dim board syb 
+      putStrLn (show line)
+      return $ assignCell (cell, line-1) syb board dim
+    else do
+      let line = (snd dim)
+      return $ assignCell (cell, line) syb board dim
+
+getInput:: IO (Int)
+getInput = do
+  cell <- getLine
+  let c = (read . pure :: Char -> Int) (head cell)
+  return (c)
+
 
 isThereAWinner :: Int -> Char -> [Cell] -> Bool -- ajeitar para 4 colunas
 isThereAWinner player syb board 
@@ -114,3 +136,19 @@ verifyMove:: [Cell] -> Int -> [(Int,Int)] -> (Int, Int)
 verifyMove board col moves = if verifyIsFree board col (head moves)
     then head moves
     else verifyMove board col (tail moves)
+
+-- percorre lista e verifica proxima linha disponivel
+verifyNextLine:: (Int, Int) -> [Cell] -> Char -> Int
+verifyNextLine (xDim, yDim) board symb
+  | Occupied symb `elem`(take xDim board) = 1
+  | otherwise = 1 + verifyNextLine (xDim, yDim) (drop xDim board) symb
+
+{-
+  | length board <= maxElem = if countPoint $ toDec $ take maxElem board then 1 else 0
+  | countPoint $ toDec $ take maxElem board = 1 + checkPoint (xDim, yDim) (drop xDim board)
+  | otherwise = checkPoint (xDim, yDim) (drop xDim board)
+  where
+      maxElem = xDim * 3
+
+countPoint:: Int -> Bool
+countPoint num = any (\w -> w .&. num == w) [28672,14336,7168,3584,1792,896,448,224,112,56,28,14,7,16912,8456,4228,2114,1057,16644,8322,4161,1092,2184,4368]-}
