@@ -77,14 +77,3 @@ assignCell pos@(xPos, yPos) symbol board dim@(col, lin)=
 printMsg:: (Int, Int) -> Int -> String
 printMsg (xDim,yDim) num =  take (xDim*yDim) (cycle ["OK!", "Boa Jogada!", "Sensacional!"]) !! (num-1)
 -- passar num como o primeiro inteiro da tupla do movimentos da máquina, para retorna uma mensagem aleatória.
-
-
-
-
-
-
-
-
-
-
-

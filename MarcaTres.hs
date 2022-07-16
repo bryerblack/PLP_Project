@@ -5,7 +5,6 @@ where
 
 import Util
 
-
 startGame:: Int -> [Char] -> [(Int,Int)] -> (Int, Int) -> IO ()
 startGame player symbols movMachine dim = playRound player 1 symbols board dim movMachine (0,0)
     where board = replicate (uncurry (*) dim) Empty
