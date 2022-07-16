@@ -79,7 +79,7 @@ playRound player turn symbols board dim movMachine = do
 roundMachine:: [Cell] -> (Int,Int) -> [Int] -> IO [Cell]
 roundMachine board dim moves  
   | head moves == 0 = do 
-    putStrLn "Laser não destruiu coluna!!"
+    putStrLn "Laser Pifou! Nenhuma coluna destruida!!\n"
     return board
   | otherwise = do
     putStrLn $ "Laser destruiu coluna " ++ show (head moves) ++ "!!"
@@ -93,15 +93,23 @@ deleteColumn delCol (xDim, yDim) i board =
 
 roundPlayer:: Char -> [Cell] -> (Int, Int) -> IO CellTransform
 roundPlayer syb board dim = do
-  putStrLn "Digite a posição: "
+  putStrLn "Escolha a próxima coluna: "
   cell <- getInput
-  return $ assignCell cell syb board dim
+  if Occupied syb `elem`board
+    then do
+      let line = verifyNextLine dim board syb 
+      putStrLn (show line)
+      return $ assignCell (cell, line-1) syb board dim
+    else do
+      let line = (snd dim)
+      return $ assignCell (cell, line) syb board dim
 
-getInput:: IO (Int, Int)
+getInput:: IO (Int)
 getInput = do
   cell <- getLine
-  let c = map (read . pure :: Char -> Int) (head cell : [last cell])
-  return (head c,last c)
+  let c = (read . pure :: Char -> Int) (head cell)
+  return (c)
+
 
 isThereAWinner :: Int -> Char -> [Cell] -> Bool -- ajeitar para 4 colunas
 isThereAWinner player syb board 
@@ -114,3 +122,9 @@ verifyMove:: [Cell] -> Int -> [(Int,Int)] -> (Int, Int)
 verifyMove board col moves = if verifyIsFree board col (head moves)
     then head moves
     else verifyMove board col (tail moves)
+
+-- percorre lista e verifica proxima linha disponivel
+verifyNextLine:: (Int, Int) -> [Cell] -> Char -> Int
+verifyNextLine (xDim, yDim) board symb
+  | Occupied symb `elem`(take xDim board) = 1
+  | otherwise = 1 + verifyNextLine (xDim, yDim) (drop xDim board) symb
