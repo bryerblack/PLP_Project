@@ -126,8 +126,13 @@ roundPlayer syb board dim pow = do
 getInput:: IO (Int)
 getInput = do
   cell <- getLine
-  let c = (read . pure :: Char -> Int) (head cell)
-  return (c)
+  if cell == "" || cell == " "
+    then do
+      putStrLn "Inválido! tente novamente"
+      getInput
+    else do
+      let c = (read . pure :: Char -> Int) (head cell)
+      return (c)
 
 
 isThereAWinner :: Int -> Char -> [Cell] -> Bool -- ajeitar para 4 colunas
