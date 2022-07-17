@@ -6,12 +6,13 @@ module CorridaVelha (
 where
 
 import Util
+import PowerUps
 
 import Data.Type.Coercion (sym)
 
 
-startGame::  [Char] -> [Int] -> (Int, Int) -> IO ()
-startGame symbols movMachine dim = playRound (fst dim) [1..(fst dim)] symbols board dim movMachine
+startGame::  [Char] -> [Int] -> (Int, Int) -> [Int] -> IO ()
+startGame symbols movMachine dim pow = playRound (fst dim) [1..(fst dim)] symbols board dim movMachine pow
     where board = replicate (uncurry (*) dim) Empty
 
 getPlayer:: Int -> String
@@ -24,32 +25,40 @@ printPlayer :: Int -> [Char] -> [Char]
 printPlayer 0 _ = ""
 printPlayer player symbols = printPlayer (player-1) symbols ++ [symbols !! (player-1)] ++ ": " ++ getPlayer player ++ "    "
 
+powerName:: Int -> String
+powerName pow
+  | pow == 1 = "Remove Jogada"
+  | pow == 2 = "Blip"
+  | pow == 3 = "Lupin"
+  | otherwise = "Indisponível"
 
-playTurn:: Int -> [Int] -> [Char] -> [Cell] -> (Int, Int) -> [Int] -> IO (Int,[Cell])
-playTurn player [] symbols board dim _ =  do
+
+playTurn:: Int -> [Int] -> [Char] -> [Cell] -> (Int, Int) -> [Int] -> [Int] -> IO (Int,[Cell])
+playTurn player [] symbols board dim _ _ =  do
   putStrLn $ printPlayer player symbols ++ "\n"  
   putStrLn $ printBoard dim board
   return (0, board)
-playTurn player turn symbols board dim movMachine = do
+playTurn player turn symbols board dim movMachine pow = do
   putStrLn $ printPlayer player symbols ++ "\n"  
   putStrLn $ printBoard dim board
  
   putStrLn $ "\nTurno: " ++ getPlayer (head turn) ++ "."
+  putStrLn $ "Power: " ++ powerName (pow !! (head turn - 1))
   let syb = symbols !! (head turn-1)
 
-  round <- roundPlayer syb board dim
+  round <- roundPlayer syb board dim (pow !! (head turn - 1))
 
   case round of
     Fail board -> do
       putStrLn "Inválido! Tente novamente."
-      playTurn player turn symbols board dim movMachine
+      playTurn player turn symbols board dim movMachine pow
     Success newBoard pos-> do
       if isThereAWinner player syb newBoard then do
         putStrLn $ replicate 4 '\n' ++ printBoard dim newBoard
         putStrLn $ "Vencedor! " ++ getPlayer (head turn) ++ ": " ++ [syb] ++ " venceu!\n\n"
         return (1, newBoard)
       else do 
-        playTurn player (tail turn) symbols newBoard dim movMachine
+        playTurn player (tail turn) symbols newBoard dim movMachine pow
 
 
 
@@ -58,10 +67,10 @@ playTurn player turn symbols board dim movMachine = do
 
 -- player vai dizer se é 3 ou 4 jogadores
 -- turn = [1,2,3,4] vai dizer dizer quem vai jogar, essa lista vai rotacionada
-playRound :: Int -> [Int] -> String -> [Cell] -> (Int, Int) -> [Int] -> IO ()
-playRound player turn symbols board dim movMachine = do 
+playRound :: Int -> [Int] -> String -> [Cell] -> (Int, Int) -> [Int] -> [Int] -> IO ()
+playRound player turn symbols board dim movMachine pow = do 
   -- todos os jogadores fazem um movimento
-  win <- playTurn player turn symbols board dim movMachine
+  win <- playTurn player turn symbols board dim movMachine pow
 
   if fst win == 0
     then do
@@ -70,7 +79,7 @@ playRound player turn symbols board dim movMachine = do
     getChar
     newBoard <- roundMachine (snd win) dim movMachine
     -- chama playRound de novo
-    playRound player (turnRotate turn) symbols newBoard dim (tail movMachine)
+    playRound player (turnRotate turn) symbols newBoard dim (tail movMachine) pow
     else
       return ()
   
@@ -91,17 +100,28 @@ deleteColumn delCol (xDim, yDim) i board =
   deleteColumn delCol (xDim, yDim) (i-1) (transformeCell Empty  board xDim delCol i)
 
 
-roundPlayer:: Char -> [Cell] -> (Int, Int) -> IO CellTransform
-roundPlayer syb board dim = do
+roundPlayer:: Char -> [Cell] -> (Int, Int) -> Int -> IO CellTransform
+roundPlayer syb board dim pow = do
   putStrLn "Escolha a próxima coluna: "
   cell <- getInput
-  if Occupied syb `elem`board
-    then do
-      let line = verifyNextLine dim board syb 
-      return $ assignCell (cell, line-1) syb board dim
-    else do
-      let line = (snd dim)
-      return $ assignCell (cell, line) syb board dim
+  case cell of
+    0 -> do
+      if Occupied syb `elem`board
+        then do
+          let line = verifyNextLine dim board syb 
+          usePower pow syb board dim (line - 1)
+        else do
+          let line = (snd dim)
+          usePower pow syb board dim line
+    _ -> do 
+      if Occupied syb `elem`board
+        then do
+          let line = verifyNextLine dim board syb 
+          return $ assignCell (cell, line-1) syb board dim
+        else do
+          let line = (snd dim)
+          return $ assignCell (cell, line) syb board dim
+
 
 getInput:: IO (Int)
 getInput = do
@@ -127,3 +147,19 @@ verifyNextLine:: (Int, Int) -> [Cell] -> Char -> Int
 verifyNextLine (xDim, yDim) board symb
   | Occupied symb `elem`(take xDim board) = 1
   | otherwise = 1 + verifyNextLine (xDim, yDim) (drop xDim board) symb
+
+
+usePower:: Int -> Char -> [Cell] -> (Int, Int) -> Int -> IO CellTransform
+usePower power syb board dim line = do
+  case power of
+    1 -> do 
+      putStrLn "Digite a posição a ser apagada: "
+      col <- getInput 
+      return(removeJogada syb (col, line) board dim)
+    2 -> do
+      return(blip board dim)
+    3 -> do
+      putStrLn "Digite a posição a ser furtada: "
+      col <- getInput
+      return(lupin syb (col, line) board dim) 
+    _ -> return(Fail board)

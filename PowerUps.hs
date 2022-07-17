@@ -1,3 +1,5 @@
+module PowerUps where
+
 import Util
     ( assignCell,
       checkBoardFree,
@@ -6,14 +8,20 @@ import Util
       Cell(..),
       CellTransform(..),
       printMsg,
-      transformeCell )
+      transformeCell,
+      checkPos)
 
-{-removeJogada:: Char -> [Cell] -> Int -> (Int, Int) -> [Cell]
-removeJogada syb board col dim = do
-  putStrLn "Digite a posição a remover: "
-  transformeCell Empty board col <$> getLine -}
+removeJogada:: Char -> (Int, Int) -> [Cell] -> (Int, Int) -> CellTransform
+removeJogada symbol pos@(xPos, yPos) board dim@(col, lin) = do
+  if checkPos pos dim && not (verifyIsFree board col (xPos, yPos))
+    then Success (transformeCell (Empty) board col xPos yPos) (xPos, yPos)
+    else Fail board
 
-blip:: [Cell] -> (Int, Int) -> [Cell]
-blip board dim = do
-    replicate (uncurry (*) dim) Empty
+blip:: [Cell] -> (Int, Int) -> CellTransform
+blip board dim = Success (replicate (uncurry (*) dim) Empty) dim
 
+lupin:: Char -> (Int, Int) -> [Cell] -> (Int, Int) -> CellTransform
+lupin symbol pos@(xPos, yPos) board dim@(col, lin) = do
+  if checkPos pos dim && not (verifyIsFree board col (xPos, yPos))
+        then Success (transformeCell (Occupied symbol) board col xPos yPos) (xPos, yPos)
+        else Fail board
