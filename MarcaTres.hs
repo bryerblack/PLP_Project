@@ -86,15 +86,6 @@ roundMachine syb board dim moves = do
   print cell
   return $ assignCell cell syb board dim
 
-{-
-roundPlayer:: Char -> [Cell] -> (Int, Int) -> Int -> IO CellTransform
-roundPlayer syb board dim pow = do
-  putStrLn "00 para usar Power-Up"
-  putStrLn "Digitar dois números x y: "
-  cell <- getInput
-  return $ assignCell cell syb board dim
--}
-
 roundPlayer:: Char -> [Cell] -> (Int, Int) -> Int -> IO CellTransform
 roundPlayer syb board dim pow = do
   putStrLn "00 para usar Power-Up"
