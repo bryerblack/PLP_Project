@@ -74,8 +74,13 @@ roundPlayer syb board dim = do
 getInput:: IO (Int, Int)
 getInput = do
   cell <- getLine
-  let c = map (read . pure :: Char -> Int) (head cell : [last cell])
-  return (head c,last c)
+  if cell == "" || cell == " "
+    then do
+      putStrLn "Inválido! tente novamente"
+      getInput
+    else do
+      let c = map (read . pure :: Char -> Int) (head cell : [last cell])
+      return (head c,last c)
 
 
 isThereAWinner :: Char -> [Cell] -> Bool

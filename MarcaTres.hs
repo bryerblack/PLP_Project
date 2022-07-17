@@ -99,8 +99,13 @@ roundPlayer syb board dim pow = do
 getInput:: IO (Int, Int)
 getInput = do
   cell <- getLine
-  let c = map (read . pure :: Char -> Int) (head cell : [last cell])
-  return (head c,last c)
+  if cell == "" || cell == " "
+    then do
+      putStrLn "Inválido! tente novamente"
+      getInput
+    else do
+      let c = map (read . pure :: Char -> Int) (head cell : [last cell])
+      return (head c,last c)
 
 
 -- percorre lista de movimentos até encontrar um que estaja livre
