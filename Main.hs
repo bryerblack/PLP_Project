@@ -49,14 +49,16 @@ main = do
                             then (5,5)
                             else (7,7)
             movMachine <- shuffle $ createMove dim
+            powerShuffle <- shuffle [1..3]
+            let pow = take 2 powerShuffle
 
             if selectSymbols == 2
-                then MarcaTres.startGame selectPlayer "XO" movMachine dim
+                then MarcaTres.startGame selectPlayer "XO" movMachine dim pow
                 else do
                     putStrLn "Digite os simbolos: "
                     syb <- getSymbol 2
                     let symbols = head syb : [last syb]
-                    MarcaTres.startGame selectPlayer symbols movMachine dim
+                    MarcaTres.startGame selectPlayer symbols movMachine dim pow
 
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
@@ -71,14 +73,16 @@ main = do
                             then (3,7)
                             else (4,9)
             movMachine <- shuffle $ take (x*y) (cycle [0..x])
+            powerShuffle <- shuffle $ take x (cycle [1..3])
+            let pow = take x powerShuffle
 
             if selectSymbols == 2
-                then CorridaVelha.startGame (take x "XOAY") movMachine dim
+                then CorridaVelha.startGame (take x "XOAY") movMachine dim pow
                 else do
                     putStrLn "Digite os simbolos: "
                     syb <- getSymbol x
                     let symbols = syb
-                    CorridaVelha.startGame symbols movMachine dim
+                    CorridaVelha.startGame symbols movMachine dim pow
 
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
