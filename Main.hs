@@ -53,12 +53,12 @@ main = do
             let pow = take 2 powerShuffle
 
             if selectSymbols == 2
-                then MarcaTres.startGame selectPlayer "XO" movMachine dim pow
+                then MarcaTres.startGame selectPlayer "XO" (cycle movMachine) dim pow
                 else do
                     putStrLn "Digite os simbolos: "
                     syb <- getSymbol 2
                     let symbols = head syb : [last syb]
-                    MarcaTres.startGame selectPlayer symbols movMachine dim pow
+                    MarcaTres.startGame selectPlayer symbols (cycle movMachine) dim pow
 
             putStr "\nPressione <Enter> para continuar...\n\n"
             getChar
