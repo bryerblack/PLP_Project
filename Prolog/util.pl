@@ -34,7 +34,6 @@ setCell([_|T],1,Syb,[Syb|T]).
 setCell([H|T],Indx,Syb,[H|R]):- Indx > 1, Indx1 is Indx - 1, setCell(T,Indx1,Syb,R), !.
 setCell(L,_,_,L).
 
-chooseSymbol(Syb1, Syb2):- get_char(Syb1), get_char(Syb2).
 
 /*Apenas Para Testar*/
 test:- createBoard(9,Board), 

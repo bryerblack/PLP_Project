@@ -1,41 +1,127 @@
+:- use_module(classico).
+:- use_module(marcaTres).
+:- use_module(corridaVelha).
+
 main:- menu(0).
 
-menu(Z):-
-    repeat, nl,
-    write("\n\n---------- JOGO DA VELHA ----------\n\n"), nl,
-    writeMenu(Z),
-    read_option(O),
-    update(Z,O,R),
-    menu(R).
+menu(Index):-
+    Title = '\n\n---------- JOGO DA VELHA ----------\n',
+    OP = ['Jogo Clássico\n', 'Jogo Marca-Três\n', 'Jogo Corrida Velha\n', 'Sair\n'],
+    writeMenu(Title,OP,'',Index,R),
+    acceptOption(R),
+    menu(Index).
 
 read_option(X):-
     get_single_char(Y),
-    atom_char(X,Y),
-    format("\nkeypressed ==> ~w ~w\n", [X,Y]),
-    member(X,['w','s','a']).
+    atom_char(X,Y).
 
-update(Z,'w',R) :- 
-                (Z = 0 ->
-                    R is 3,!;
-                R is Z - 1), 
-                format("\nUP").
-update(Z,'s',R) :-
-                (Z = 3 ->
-                    R is 0,!;
-                R is Z + 1),
-                format("\nDOWN").
-update(_,'a',_):- format("\nACCEPT").
+
+update(Index,'w',Limit,R) :- 
+                (Index = 0 ->
+                    R is Limit;
+                    R is Index - 1).
+update(Index,'s',Limit,R) :-
+                (Index = Limit ->
+                    R is 0;
+                    R is Index + 1).
+update(_,'a',_).
 update(_,X,_) :- 
       atom_char(X,Y),
       format("\nYOU pressed ==> ~w ~w (ONLY ARROWS and e)\n",[X,Y]),
       get_single_char(_).
 
-writeMenu(0):-
-    write("\n-> Clássico\nMarca-Três\nCorrida-da-Velha\nSair\n").
-writeMenu(1):-
-    write("\nClássico\n-> Marca-Três\nCorrida-da-Velha\nSair\n").
-writeMenu(2):-
-    write("\nClássico\nMarca-Três\n-> Corrida-da-Velha\nSair\n").
-writeMenu(3):-
-    write("\nClássico\nMarca-Três\nCorrida-da-Velha\n-> Sair\n").
+
+% uso para menu principal, menu para escolher o adversario, os simbolos e dimensão
+writeMenu(Title, OP, Mesg, Index, R):-
+    write(Title),
+    write('\n w/s - mover cursor\n a - selecionar\n\n\n'),
+    write(Mesg),
+    writeOp(Index, OP),
+    read_option(Select),
+    (member(Select,['w','s','a']) -> 
+        (Select = 'a' -> R = Index, !;
+            length(OP, Len),
+            Limit is Len-1,
+            update(Index, Select, Limit, NewIndex),
+            writeMenu(Title, OP, Mesg, NewIndex, R));
+        writeMenu(Title, OP, Mesg, Index, R)).
+
+
+
+% colocar seta nas opções do menu
+writeOp(Index, List):-
+    addElement(' -> ', Index, List, R),
+    writeList(R).
+
+addElement(X, 0, [H|T], [X,H|T]).
+addElement(X,I,[H|T], [H|T1]) :-
+    I1 is I-1,
+    addElement(X,I1,T,T1).
+
+writeList([]).
+writeList([H|T]) :-
+    write(H),
+    writeList(T).
+
+
+% fazer as escolhas antes do jogo, depois ir para jogo
+acceptOption(3):- halt.
+acceptOption(0):- 
+    Title = '\n\n---------- JOGO CLÁSSICO ----------\n',
+    OP = ['Jogador\n', 'Máquina\n'],
+    OP2 = ['Sim\n','Não\n'],
+    Mesg = 'Jogar contra:\n',
+    Mesg2 = 'Deseja mudar os simbolos dos jogadores?\n',
+    writeMenu(Title,OP,Mesg,0,R_player),
+    writeMenu(Title,OP2,Mesg2,0,R_symb),
+    (R_symb = 1 -> 
+        Syb1 = 'X', Syb2 = 'O'; 
+        chooseSymbol(Syb1, Syb2)),
+    classico:play(R_player, Syb1, Syb2), !.
+acceptOption(1):-
+    Title = '\n\n---------- JOGO MARCA-TRÊS ----------\n',
+    OP = ['Jogador\n', 'Máquina\n'],
+    OP2 = ['Sim\n','Não\n'],
+    OP3 = ['5x5\n', '7x7\n'],
+    Mesg = 'Jogar contra:\n',
+    Mesg2 = 'Deseja mudar os simbolos dos jogadores?\n',
+    Mesg3 = 'Dimensão:\n',
+    writeMenu(Title,OP,Mesg,0,R_player),
+    writeMenu(Title,OP3,Mesg3,0,R_dim),
+    writeMenu(Title,OP2,Mesg2,0,R_symb),
+    (R_symb = 1 -> 
+        Syb1 = 'X', Syb2 = 'O'; 
+        chooseSymbol(Syb1, Syb2)),
+    marcaTres:play(R_player, Syb1, Syb2, R_dim), !.
+acceptOption(2):-
+    Title = '\n\n---------- JOGO CORRIDA VELHA ----------\n',
+    OP = ['Jogador\n', 'Máquina\n'],
+    OP2 = ['Sim\n','Não\n'],
+    OP3 = ['7x3 - 3 Jogadores\n', '9x4 - 4 Jogadores\n'],
+    Mesg = 'Jogar contra:\n',
+    Mesg2 = 'Deseja mudar os simbolos dos jogadores?\n',
+    Mesg3 = 'Dimensão:\n',
+    writeMenu(Title,OP,Mesg,0,R_player),
+    writeMenu(Title,OP3,Mesg3,0,R_dim),
+    writeMenu(Title,OP2,Mesg2,0,R_symb),
+    (R_symb = 1 -> 
+        Syb1 = 'X', Syb2 = 'O'; 
+        chooseSymbol(Syb1, Syb2)),
+    corridaVelha:play(R_player, Syb1, Syb2, R_dim), !.
+
+
+% leitura do simbolo
+chooseSymbol(Syb1, Syb2):- 
+    nl,nl,
+    write('Digite o primeiro símbolo e depois <Enter>:\n'),
+    read_syb(Syb1), 
+    write('Digite o segundo símbolo:\n'),
+    read_syb(Syb2).
+    
+read_syb(Syb):-
+    read_line_to_codes(user_input, X2),
+    string_to_atom(X2, X1),
+    string_upper(X1, Syb).
+    
+
     
