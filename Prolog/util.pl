@@ -1,3 +1,5 @@
+:- module(util, []).
+
 createBoard(0,[]).
 createBoard(X,['_'|T]):- Z is X-1, createBoard(Z,T).
 
@@ -59,3 +61,11 @@ test2:- createBoard(9,Board),
 
 test3:- createBoard(21,Board),
       renderBoard(Board,3,21,0).
+
+% para transformar os simbolos XO em [X,O] 
+atomList(Syb, ListSyb) :-
+      name(Syb, Xs),
+      maplist(number_to_character, Xs, ListSyb).
+      
+number_to_character(Number, ListSyb) :-
+      name(ListSyb, [Number]).

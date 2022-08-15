@@ -75,9 +75,9 @@ acceptOption(0):-
     writeMenu(Title,OP,Mesg,0,R_player),
     writeMenu(Title,OP2,Mesg2,0,R_symb),
     (R_symb = 1 -> 
-        Syb1 = 'X', Syb2 = 'O'; 
-        chooseSymbol(Syb1, Syb2)),
-    classico:play(R_player, Syb1, Syb2), !.
+        Syb = 'XO'; 
+        chooseSymbol(Syb)),
+    classico:startGame(R_player, Syb), !.
 acceptOption(1):-
     Title = '\n\n---------- JOGO MARCA-TRÊS ----------\n',
     OP = ['Jogador\n', 'Máquina\n'],
@@ -90,9 +90,9 @@ acceptOption(1):-
     writeMenu(Title,OP3,Mesg3,0,R_dim),
     writeMenu(Title,OP2,Mesg2,0,R_symb),
     (R_symb = 1 -> 
-        Syb1 = 'X', Syb2 = 'O'; 
-        chooseSymbol(Syb1, Syb2)),
-    marcaTres:play(R_player, Syb1, Syb2, R_dim), !.
+        Syb = 'XO'; 
+        chooseSymbol(Syb)),
+    marcaTres:startGame(R_player, Syb, R_dim), !.
 acceptOption(2):-
     Title = '\n\n---------- JOGO CORRIDA VELHA ----------\n',
     OP = ['Jogador\n', 'Máquina\n'],
@@ -105,23 +105,19 @@ acceptOption(2):-
     writeMenu(Title,OP3,Mesg3,0,R_dim),
     writeMenu(Title,OP2,Mesg2,0,R_symb),
     (R_symb = 1 -> 
-        Syb1 = 'X', Syb2 = 'O'; 
-        chooseSymbol(Syb1, Syb2)),
-    corridaVelha:play(R_player, Syb1, Syb2, R_dim), !.
+        Syb = 'XOA'; 
+        chooseSymbol(Syb)),
+    corridaVelha:startGame(R_player, Syb, R_dim), !.
+
 
 
 % leitura do simbolo
-chooseSymbol(Syb1, Syb2):- 
+chooseSymbol(Syb):- 
     nl,nl,
-    write('Digite o primeiro símbolo e depois <Enter>:\n'),
-    read_syb(Syb1), 
-    write('Digite o segundo símbolo:\n'),
-    read_syb(Syb2).
-    
-read_syb(Syb):-
+    write('Digite os símbolos todos juntos:\n'),
+    write('Ex.: ab para ter A e B\n'),
     read_line_to_codes(user_input, X2),
     string_to_atom(X2, X1),
-    string_upper(X1, Syb).
-    
+    string_upper(X1, Syb).  
 
     
