@@ -27,7 +27,7 @@ isWinner(Board, Symbol):- nth1(3, Board, Symbol), nth1(5, Board, Symbol), nth1(7
 
 playRound(Board, Player, Symbol):- write('insira posicao: '), read(Indx),
     checkFree(Board, Indx, R), R == true, setCell(Board, Indx, Symbol, NewBoard),
-    nl, render3x3(NewBoard), isWinner(Board, Symbol).
+    nl, render3x3(NewBoard), switchPlayer(NewBoard, Player, Symbol).
 
 playRound(Board, Player, Symbol):- checkFree(Board, Indx, R), R == false,
     write('posicao invalida, tente novamente.'),
