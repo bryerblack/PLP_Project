@@ -25,10 +25,6 @@ update(Index,'s',Limit,R) :-
                     R is 0;
                     R is Index + 1).
 update(_,'a',_).
-update(_,X,_) :- 
-      atom_char(X,Y),
-      format("\nYOU pressed ==> ~w ~w (ONLY ARROWS and e)\n",[X,Y]),
-      get_single_char(_).
 
 
 % uso para menu principal, menu para escolher o adversario, os simbolos e dimensão
@@ -76,7 +72,7 @@ acceptOption(0):-
     writeMenu(Title,OP2,Mesg2,0,R_symb),
     (R_symb = 1 -> 
         Syb = 'XO'; 
-        chooseSymbol(Syb)),
+        readSymbol(Syb)),
     classico:startGame(R_player, Syb), !.
 acceptOption(1):-
     Title = '\n\n---------- JOGO MARCA-TRÊS ----------\n',
@@ -91,7 +87,7 @@ acceptOption(1):-
     writeMenu(Title,OP2,Mesg2,0,R_symb),
     (R_symb = 1 -> 
         Syb = 'XO'; 
-        chooseSymbol(Syb)),
+        readSymbol(Syb)),
     marcaTres:startGame(R_player, Syb, R_dim), !.
 acceptOption(2):-
     Title = '\n\n---------- JOGO CORRIDA VELHA ----------\n',
@@ -106,13 +102,13 @@ acceptOption(2):-
     writeMenu(Title,OP2,Mesg2,0,R_symb),
     (R_symb = 1 -> 
         Syb = 'XOA'; 
-        chooseSymbol(Syb)),
+        readSymbol(Syb)),
     corridaVelha:startGame(R_player, Syb, R_dim), !.
 
 
 
 % leitura do simbolo
-chooseSymbol(Syb):- 
+readSymbol(Syb):- 
     nl,nl,
     write('Digite os símbolos todos juntos:\n'),
     write('Ex.: ab para ter A e B\n'),
