@@ -78,6 +78,10 @@ test2:- createBoard(9,Board),
 test3:- createBoard(21,Board),
       renderBoard(Board,3,21,0).
 
+test4:- readXY(R), write(R).
+
+test5:- createBoard(9,Board), readPos(Board,3,Index), write(Index).
+
 % para transformar os simbolos XO em [X,O] 
 atomList(Syb, ListSyb) :-
       name(Syb, Xs),
@@ -93,11 +97,25 @@ readXY(R):-
       string_to_atom(X1, X),
       atomList(X,R1),
       include(number, R1, R).
+
+checkInRange(Col,X,Y):- (X =< Col, X > 0), (Y =< Col, Y > 0).
       
+readPos(Board,Col,Index):-
+    readXY([X,Y]),
+    (checkInRange(Col,X,Y) ->
+          !;
+          write('Inválido! tente novamente\n'),
+          readPos(Board,Col,Index)),
+    transformePos(X,Y,Col,0,Index),
+    (checkFree(Board,Index) ->
+          !;
+          write('Inválido! tente novamente\n'),
+          readPos(Board,Col,Index)).
 
 /*
 readPos(Board,Col,Line,Index):-
     readXY(X,Y,Col,Line),
+    checkInRange(Col,X,Y),
     transformePos(X,Y,Col,Index),
     (checkFree(Board,Index) ->
           !;
