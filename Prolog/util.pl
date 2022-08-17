@@ -33,9 +33,11 @@ printBoard(Board,Col):-
       renderBoard(Board,Col,0,0).
 
 
-checkFree2(B,Indx,R):- nth1(Indx,B,'_'), R = true; R = false.
-
+% verificar se espaço está livre
 checkFree(Board,Indx):- nth1(Indx,Board,'_').
+
+% verificar se tabuleior está cheio
+checkBoardFree(Board):- member('_', Board).
 
 setCell([_|T],1,Syb,[Syb|T]).
 setCell([H|T],Indx,Syb,[H|R]):- Indx > 1, Indx1 is Indx - 1, setCell(T,Indx1,Syb,R), !.
@@ -52,37 +54,7 @@ transformePos(X,Y,Col,Cont,R):-
     R is R1+1.
 
 
-/*Apenas Para Testar*/
-
-test:- createBoard(9,Board), 
-    checkFree(Board,3,Rb),
-    write(Rb),nl,
-    renderBoard(Board,3,0),
-    nl,
-    setCell(Board,3,'X',NewBoard),
-    checkFree(NewBoard,3,Nr),
-    write(Nr),nl,
-    renderBoard(NewBoard,3,0),
-    setCell(NewBoard,2,'O',NewNewBoard),
-    checkFree(NewNewBoard,2,Nrr),
-    write(Nrr),nl,
-    renderBoard(NewNewBoard,3,0).
-
-test2:- createBoard(9,Board),
-      renderBoard(Board,3,9,0),nl,
-      createBoard(25,Board2),
-      renderBoard(Board2,5,25,0),nl,
-      createBoard(49,Board3),
-      renderBoard(Board3,7,49,0).
-
-test3:- createBoard(21,Board),
-      renderBoard(Board,3,21,0).
-
-test4:- readXY(R), write(R).
-
-test5:- createBoard(9,Board), readPos(Board,3,Index), write(Index).
-
-% para transformar os simbolos XO em [X,O] 
+% para transformar atom XO em [X,O] 
 atomList(Syb, ListSyb) :-
       name(Syb, Xs),
       maplist(number_to_character, Xs, ListSyb).
@@ -98,30 +70,14 @@ readXY(R):-
       atomList(X,R1),
       include(number, R1, R).
 
-checkInRange(Col,X,Y):- (X =< Col, X > 0), (Y =< Col, Y > 0).
+checkInRange(Col,Line,X,Y):- (X =< Col, X > 0), (Y =< Line, Y > 0).
       
-readPos(Board,Col,Index):-
-    readXY([X,Y]),
-    (checkInRange(Col,X,Y) ->
-          !;
-          write('Inválido! tente novamente\n'),
-          readPos(Board,Col,Index)),
-    transformePos(X,Y,Col,0,Index),
-    (checkFree(Board,Index) ->
-          !;
-          write('Inválido! tente novamente\n'),
-          readPos(Board,Col,Index)).
+readPos(Col,Line,Index):-
+      readXY([X,Y]),
+      checkInRange(Col,Line,X,Y),
+      transformePos(X,Y,Col,0,Index).
 
-/*
-readPos(Board,Col,Line,Index):-
-    readXY(X,Y,Col,Line),
-    checkInRange(Col,X,Y),
-    transformePos(X,Y,Col,Index),
-    (checkFree(Board,Index) ->
-          !;
-          write('Inválido! tente novamente\n'),
-          readPos(Board,Col,Line,Index)).
-*/
+
 
 
 

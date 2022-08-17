@@ -1,17 +1,9 @@
 :- module(classico, []).
 :- use_module(util).
 
-/*
-startGame(Player, Syb) :- 
-    (Player = 0 -> P1 = 'Jogador'; P1 = 'Maquina'),
-    format('\n\njogo contra ~w\no simbolo ~w\n\n', [P1, Syb]),
-    write('NÃO TEM NADA FEITO\n\n'),
-    write('Pressione qualquer tecla para continuar...\n\n'),
-    get_single_char(_).
-*/
 
 startGame(Player, Syb) :- 
-    util:createBoard(9,Board), nl,nl,nl,
+    util:createBoard(9,Board),nl,nl,nl,
     (Player = 0 -> 
         util:atomList(Syb, ListSyb),
         round_player(ListSyb, Board,1);
@@ -19,28 +11,55 @@ startGame(Player, Syb) :-
 
     write('Pressione qualquer tecla para continuar...\n\n'),
     get_single_char(_).
-    
 
-round_player([Syb1|[Syb2|[]]], Board,Turn):-
-    format('~w: Jogador 1  ~w: Jogador 2\n\n', [Syb1, Syb2]),
+
+
+round_player([Syb1,Syb2|[]],Board,Turn):-
+    format('~w: Jogador 1   ~w: Jogador 2\n\n', [Syb1, Syb2]),
     util:printBoard(Board,3), nl,
-    (Turn = 1 -> P = 'Jogador 1'; P = 'Jogador 2'),
+    (Turn = 1 -> P = 'Jogador 1', Syb = Syb1; P = 'Jogador 2', Syb = Syb2),
     format('Turno: ~w\n',P),
-    util:readXY(L),
-    % falta:
-        %tratamento das posições recebidas:
-            %transformar L em X e Y
-            %verificar se X e Y estão nos limites de coluna e linha, senao chama readXY
-            %verificar se posição está livre (checkFree), senao chama readXY
-            % ---> comecei em util:readPos
-        %colocar peça do jogador no tabuleiro -> setCell
-        %trocar turn
-    write(L),nl,nl. 
-
-
-
-
+    (util:readPos(3,3,Index)->
+        (util:checkFree(Board,Index)->
+            write('\n\n\nSensacional!\n'),
+            util:setCell(Board,Index,Syb,NewBoard),
+            changeTurn(Turn,NewTurn),
+            (util:checkBoardFree(NewBoard) ->
+                (isWinner(NewBoard,Syb)->
+                    % vencedor
+                    util:printBoard(NewBoard,3),
+                    format('\n\nVencedor! ~w ~w venceu\n\n',[P,Syb]);
+                    % continuar jogo
+                    round_player([Syb1,Syb2],NewBoard,NewTurn)
+                );
+                % empate
+                util:printBoard(NewBoard,3),
+                write('\n\nEmpate!!\n\n')
+            );
+            write('\n\nInválido! tente novamente\n'),
+            round_player([Syb1,Syb2],Board,Turn)
+        );
+        write('\n\nInválido! tente novamente\n'),
+        round_player([Syb1,Syb2],Board,Turn)
+    ). 
 
 
 
 round_machine:- write('nada'), nl.
+
+
+
+
+
+changeTurn(1,2).
+changeTurn(2,1).
+
+
+isWinner(Board, Symbol):- (nth1(1, Board, Symbol), nth1(2, Board, Symbol), nth1(3, Board, Symbol));
+    (nth1(4, Board, Symbol), nth1(5, Board, Symbol), nth1(6, Board, Symbol));
+    (nth1(7, Board, Symbol), nth1(8, Board, Symbol), nth1(9, Board, Symbol));
+    (nth1(1, Board, Symbol), nth1(4, Board, Symbol), nth1(7, Board, Symbol));
+    (nth1(2, Board, Symbol), nth1(5, Board, Symbol), nth1(8, Board, Symbol));
+    (nth1(3, Board, Symbol), nth1(6, Board, Symbol), nth1(9, Board, Symbol));
+    (nth1(1, Board, Symbol), nth1(5, Board, Symbol), nth1(9, Board, Symbol));
+    (nth1(3, Board, Symbol), nth1(5, Board, Symbol), nth1(7, Board, Symbol)).
