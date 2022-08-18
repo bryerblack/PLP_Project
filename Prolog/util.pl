@@ -78,6 +78,11 @@ readPos(Col,Line,Index):-
       transformePos(X,Y,Col,0,Index).
 
 
+printMsg:-
+      Msg = ['Ok!','Boa Jogada!','Sensacional!'],
+      random(1,4,X),
+      nth1(X,Msg,R),
+      format('\n\n\n~w\n',R).
 
 
 

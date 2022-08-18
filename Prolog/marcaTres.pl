@@ -36,7 +36,7 @@ round_player([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2):-
     format('Turno: ~w\n',P),
     (util:readPos(Dim,Dim,Index) ->
         (util:checkFree(Board,Index) ->
-            write('\n\n\nSensacional!\n'), % trocar por mensagem aleatoria
+            util:printMsg,
             util:setCell(Board,Index,Syb,NewBoard),
             changeTurn(Turn,NewTurn),
             (util:checkBoardFree(NewBoard) ->
