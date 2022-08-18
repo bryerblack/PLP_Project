@@ -1,6 +1,7 @@
 :- use_module(classico).
 :- use_module(marcaTres).
 :- use_module(corridaVelha).
+:- use_module(util).
 
 main:- menu(0).
 
@@ -71,8 +72,8 @@ acceptOption(0):-
     writeMenu(Title,OP,Mesg,0,R_player),
     writeMenu(Title,OP2,Mesg2,0,R_symb),
     (R_symb = 1 -> 
-        Syb = 'XO'; 
-        readSymbol(Syb)),
+        Syb = ['X','O']; 
+        readSymbol(2,Syb)),
     classico:startGame(R_player, Syb), !.
 acceptOption(1):-
     Title = '\n\n---------- JOGO MARCA-TRÊS ----------\n',
@@ -86,8 +87,8 @@ acceptOption(1):-
     writeMenu(Title,OP3,Mesg3,0,R_dim),
     writeMenu(Title,OP2,Mesg2,0,R_symb),
     (R_symb = 1 -> 
-        Syb = 'XO'; 
-        readSymbol(Syb)),
+        Syb = ['X','O']; 
+        readSymbol(2,Syb)),
     marcaTres:startGame(R_player, Syb, R_dim), !.
 acceptOption(2):-
     Title = '\n\n---------- JOGO CORRIDA VELHA ----------\n',
@@ -98,19 +99,28 @@ acceptOption(2):-
     writeMenu(Title,OP3,Mesg3,0,R_dim),
     writeMenu(Title,OP2,Mesg2,0,R_symb),
     (R_symb = 1 -> 
-        Syb = 'XOA'; 
-        readSymbol(Syb)),
+        (R_dim = 0 -> Syb = ['X','O','A'];Syb = ['X','O','A','B']); 
+        (R_dim = 0 -> 
+            readSymbol(3,Syb);
+            readSymbol(4,Syb)
+        )),
     corridaVelha:startGame(Syb, R_dim), !.
 
 
 
 % leitura do simbolo
-readSymbol(Syb):- 
-    nl,nl,
-    write('Digite os símbolos todos juntos:\n'),
-    write('Ex.: ab para ter A e B\n'),
-    read_line_to_codes(user_input, X2),
-    string_to_atom(X2, X1),
-    string_upper(X1, Syb).  
+readSymbol(Limit,Syb):- 
+    write('Digite os símbolos:\n'),
+    read_line_to_codes(user_input, X3),
+    string_to_atom(X3, X2),
+    string_upper(X2, X1),
+    util:atomList(X1,R1),
+    include(is_alpha, R1, Syb1),
+    length(Syb1, Qtd),
+    (Qtd = Limit-> 
+        Syb = Syb1;
+        write('Inválido! tente novamente\n'),
+        readSymbol(Limit,Syb)        
+    ).
 
     

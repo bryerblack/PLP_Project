@@ -5,8 +5,7 @@
 startGame(Player, Syb) :- 
     util:createBoard(9,Board),nl,nl,nl,
     (Player = 0 -> 
-        util:atomList(Syb, ListSyb),
-        round_player(ListSyb, Board,1);
+        round_player(Syb, Board,1);
         round_machine),
 
     write('Pressione qualquer tecla para continuar...\n\n'),

@@ -6,8 +6,7 @@ startGame(Player, Syb, Dim) :-
     (Dim = 0 -> Dim2 = 5, MultDim = 25; Dim2 = 7, MultDim = 49),
     util:createBoard(MultDim,Board),nl,nl,nl,
     (Player = 0 ->
-        util:atomList(Syb, ListSyb),
-        round_player(ListSyb,Board,1,Dim2,0,0);
+        round_player(Syb,Board,1,Dim2,0,0);
         round_machine
     ),
     write('Pressione qualquer tecla para continuar...\n\n'),
