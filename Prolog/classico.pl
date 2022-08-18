@@ -23,7 +23,8 @@ isWinner(Board, Symbol):- (nth1(1, Board, Symbol), nth1(2, Board, Symbol), nth1(
     (nth1(2, Board, Symbol), nth1(5, Board, Symbol), nth1(8, Board, Symbol));
     (nth1(3, Board, Symbol), nth1(6, Board, Symbol), nth1(9, Board, Symbol));
     (nth1(1, Board, Symbol), nth1(5, Board, Symbol), nth1(9, Board, Symbol));
-    (nth1(3, Board, Symbol), nth1(5, Board, Symbol), nth1(7, Board, Symbol)).
+    (nth1(3, Board, Symbol), nth1(5, Board, Symbol), nth1(7, Board, Symbol));
+    \+ member('_', Board), write('empate!'), halt.
 
 playRound(Board, Player, Symbol):- write('insira posicao: '), read(Indx),
     checkFree(Board, Indx, R), R == true, setCell(Board, Indx, Symbol, NewBoard),
@@ -32,6 +33,13 @@ playRound(Board, Player, Symbol):- write('insira posicao: '), read(Indx),
 playRound(Board, Player, Symbol):- checkFree(Board, Indx, R), R == false,
     write('posicao invalida, tente novamente.'),
     nl, playRound(Board, Player, Symbol).
+
+machineRound(Board, Symbol):- random_between(1, 9, Indx),
+    checkFree(Board, Indx, R), R == true, setCell(Board, Indx, Symbol, NewBoard),
+    nl, render3x3(NewBoard).
+
+machineRound(Board, Symbol):- random_between(1, 9, Indx),
+    checkFree(Board, Indx, R), R == false, machineRound(Board, Symbol).
 
 main:- createBoard(9, Board),
     nl, render3x3(Board),
