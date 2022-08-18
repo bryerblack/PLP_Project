@@ -91,19 +91,16 @@ acceptOption(1):-
     marcaTres:startGame(R_player, Syb, R_dim), !.
 acceptOption(2):-
     Title = '\n\n---------- JOGO CORRIDA VELHA ----------\n',
-    OP = ['Jogador\n', 'Máquina\n'],
     OP2 = ['Sim\n','Não\n'],
     OP3 = ['7x3 - 3 Jogadores\n', '9x4 - 4 Jogadores\n'],
-    Mesg = 'Jogar contra:\n',
     Mesg2 = 'Deseja mudar os simbolos dos jogadores?\n',
     Mesg3 = 'Dimensão:\n',
-    writeMenu(Title,OP,Mesg,0,R_player),
     writeMenu(Title,OP3,Mesg3,0,R_dim),
     writeMenu(Title,OP2,Mesg2,0,R_symb),
     (R_symb = 1 -> 
         Syb = 'XOA'; 
         readSymbol(Syb)),
-    corridaVelha:startGame(R_player, Syb, R_dim), !.
+    corridaVelha:startGame(Syb, R_dim), !.
 
 
 

@@ -40,18 +40,11 @@ checkFree(Board,Indx):- nth1(Indx,Board,'_').
 checkBoardFree(Board):- member('_', Board).
 
 setCell([_|T],1,Syb,[Syb|T]).
-setCell([H|T],Indx,Syb,[H|R]):- Indx > 1, Indx1 is Indx - 1, setCell(T,Indx1,Syb,R), !.
+setCell([H|T],Indx,Syb,[H|R]):- Indx1 is Indx - 1, setCell(T,Indx1,Syb,R).
 
 % troca posição x y por indice de lista
-transformePos(X,1,_,X,0).
-transformePos(X,Y,Col,Col,R):- 
-    Y1 is Y-1, 
-    transformePos(X,Y1,Col,1,R1), 
-    R is R1+1.
-transformePos(X,Y,Col,Cont,R):- 
-    Cont1 is Cont+1, 
-    transformePos(X,Y,Col,Cont1,R1), 
-    R is R1+1.
+transformePos(X,Y,Col,Index):-
+      Index is X+Col*(Y-1).
 
 
 % para transformar atom XO em [X,O] 
@@ -75,7 +68,7 @@ checkInRange(Col,Line,X,Y):- (X =< Col, X > 0), (Y =< Line, Y > 0).
 readPos(Col,Line,Index):-
       readXY([X,Y]),
       checkInRange(Col,Line,X,Y),
-      transformePos(X,Y,Col,0,Index).
+      transformePos(X,Y,Col,Index).
 
 
 printMsg:-

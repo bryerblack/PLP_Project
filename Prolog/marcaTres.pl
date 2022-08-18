@@ -1,16 +1,6 @@
 :- module(marcaTres, []).
 :- use_module(util).
 
-/*
-startGame(Player, Syb, Dim) :- 
-    (Player = 0 -> P1 = 'Jogador'; P1 = 'Maquina'),
-    (Dim = 0 -> D1 = '5x5'; D1 = '7x7'),
-    format('\n\njogo contra ~w\nos simbolos: ~w\ndimensão: ~w\n\n', [P1, Syb, D1]),
-    write('NÃO TEM NADA FEITO\n\n'),
-    write('Pressione qualquer tecla para continuar...\n\n'),
-    get_single_char(_).*/
-
-
 
 startGame(Player, Syb, Dim) :- 
     (Dim = 0 -> Dim2 = 5, MultDim = 25; Dim2 = 7, MultDim = 49),
@@ -23,9 +13,6 @@ startGame(Player, Syb, Dim) :-
     write('Pressione qualquer tecla para continuar...\n\n'),
     get_single_char(_).
 
-teste:-
-    util:createBoard(25,Board),nl,nl,nl,
-    round_player(['X','O'],Board,1,5,0,0).
 
 
 round_player([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2):-
@@ -34,21 +21,17 @@ round_player([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2):-
     util:printBoard(Board,Dim), nl,
     (Turn = 1 -> P = 'Jogador 1', Syb = Syb1; P = 'Jogador 2', Syb = Syb2),
     format('Turno: ~w\n',P),
-    (util:readPos(Dim,Dim,Index) ->
-        (util:checkFree(Board,Index) ->
-            util:printMsg,
-            util:setCell(Board,Index,Syb,NewBoard),
-            changeTurn(Turn,NewTurn),
-            (util:checkBoardFree(NewBoard) ->
-                %somar pontos, continuar jogo
-                updateScore(Score1,Score2,Turn,Index,Board,Dim,Syb,NewScore1,NewScore2),
-                round_player([Syb1,Syb2],NewBoard,NewTurn,Dim,NewScore1,NewScore2);
-                %comparar pontos e finalizar 
-                util:printBoard(NewBoard,Dim),
-                winner(Score1,Score2,Syb1,Syb2)
-            );
-            write('\n\nInválido! tente novamente\n'),
-            round_player([Syb1,Syb2],Board,Turn,Dim,Score1,Score2)
+    (util:readPos(Dim,Dim,Index), util:checkFree(Board,Index) ->
+        util:printMsg,
+        util:setCell(Board,Index,Syb,NewBoard),
+        changeTurn(Turn,NewTurn),
+        (util:checkBoardFree(NewBoard) ->
+            %somar pontos, continuar jogo
+            updateScore(Score1,Score2,Turn,Index,Board,Dim,Syb,NewScore1,NewScore2),
+            round_player([Syb1,Syb2],NewBoard,NewTurn,Dim,NewScore1,NewScore2);
+            %comparar pontos e finalizar 
+            util:printBoard(NewBoard,Dim),
+            winner(Score1,Score2,Syb1,Syb2)
         );
         write('\n\nInválido! tente novamente\n'),
         round_player([Syb1,Syb2],Board,Turn,Dim,Score1,Score2)
