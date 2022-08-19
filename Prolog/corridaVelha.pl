@@ -7,29 +7,28 @@ startGame(Syb, Dim) :-
         Turn = [1,2,3,4], MultDim = 36),
         
     util:createBoard(MultDim,Board),nl,nl,nl,
-    playRound(Syb,Board,Turn),
-
-    write('Pressione qualquer tecla para continuar...\n\n'),
-    get_single_char(_).
+    playRound(Syb,Board,Turn).
 
 
-/*
+
 teste:-
     util:createBoard(21,Board),nl,nl,nl,
     playRound(['X','O','A'],Board,[1,2,3]).
-*/
+
 
 playRound(ListSyb,Board,Turn):-
     length(ListSyb,QtdPlayer),
     round_player(ListSyb,Board,Turn,Board2,R),
     (R = 0 -> 
         write('\nRodada dos jogadores finalizada.\n'),
-        write('Pressione qualquer tecla para atirar laser...\n\n\n\n'),
+        write('Pressione qualquer tecla para atirar laser...\n\n'),
         get_single_char(_),
         round_machine(Board2,QtdPlayer,NewBoard),
         rotateList(Turn, NewTurn),
         playRound(ListSyb,NewBoard,NewTurn);
-        !    
+
+        write('Pressione qualquer tecla para continuar...\n\n'),
+        get_single_char(_)  
     ).
 
 
@@ -65,9 +64,9 @@ round_player(ListSyb,Board,[H_Turn|T_Turn],NewBoard,R):-
     ).
 
 round_machine(Board,Col,NewBoard):-
-    Col2 is Col+1,
-    random(0,Col2,Col3),
-    %Col3 is 0,
+    %Col2 is Col+1,
+    %random(0,Col2,Col3),
+    Col3 is 0,
     (Col3 = 0 -> 
         write('Laser Pifou! Nenhuma coluna destruida!!\n'),
         NewBoard = Board;
