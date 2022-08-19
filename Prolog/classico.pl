@@ -23,7 +23,7 @@ round_player([Syb1,Syb2|[]],Board,Turn):-
         util:setCell(Board,Index,Syb,NewBoard),
         changeTurn(Turn,NewTurn),
         (util:checkBoardFree(NewBoard) ->
-            (isWinner(NewBoard,Syb)->
+            (isWinner(NewBoard,Syb) ->
                 % vencedor
                 util:printBoard(NewBoard,3),
                 format('\n\nVencedor! ~w ~w venceu\n\n',[P,Syb]);

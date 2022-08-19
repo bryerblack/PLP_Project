@@ -57,7 +57,7 @@ number_to_character(Number, ListSyb) :-
 
 % Ler as posições X Y
 readXY(R):-
-      write('Digitar dois números x y:\n'),
+      write('Digite dois números x y:\n'),
       read_line_to_codes(user_input, X1),
       string_to_atom(X1, X),
       atomList(X,R1),
@@ -65,6 +65,7 @@ readXY(R):-
 
 checkInRange(Col,Line,X,Y):- (X =< Col, X > 0), (Y =< Line, Y > 0).
       
+
 readPos(Col,Line,Index):-
       readXY([X,Y]),
       checkInRange(Col,Line,X,Y),
