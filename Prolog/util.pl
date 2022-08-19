@@ -76,6 +76,3 @@ printMsg:-
       random(1,4,X),
       nth1(X,Msg,R),
       format('\n\n\n~w\n',R).
-
-
-

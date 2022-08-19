@@ -6,9 +6,8 @@ startGame(Player, Syb, Dim) :-
     (Dim = 0 -> Dim2 = 5, MultDim = 25; Dim2 = 7, MultDim = 49),
     util:createBoard(MultDim,Board),nl,nl,nl,
     (Player = 0 ->
-        util:atomList(Syb, ListSyb),
-        round_player(ListSyb,Board,1,Dim2,0,0);
-        round_machine
+        round_player(Syb,Board,1,Dim2,0,0);
+        round_machine(Syb,Board,1,Dim2,0,0)
     ),
     write('Pressione qualquer tecla para continuar...\n\n'),
     get_single_char(_).
@@ -41,7 +40,41 @@ round_player([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2):-
 
 
 
-round_machine:- write('nada'), nl.
+round_machine([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2):-
+    format('~w: Jogador 1   ~w: Máquina\n\n', [Syb1, Syb2]),
+    format('~w: ~w           ~w: ~w\n\n', [Syb1,Score1,Syb2,Score2]),
+    util:printBoard(Board,Dim),nl,
+    (Turn = 1 -> P = 'Jogador 1', Syb = Syb1; P = 'Máquina', Syb = Syb2),
+    format('Turno: ~w\n',P),
+    (Turn = 1 -> (util:readPos(Dim,Dim,Index), util:checkFree(Board,Index)->
+        util:printMsg,
+        util:setCell(Board,Index,Syb,NewBoard),
+        changeTurn(Turn,NewTurn),
+        (util:checkBoardFree(NewBoard) ->
+            %somar pontos, continuar jogo
+            updateScore(Score1,Score2,Turn,Index,Board,Dim,Syb,NewScore1,NewScore2),
+            round_machine([Syb1,Syb2],NewBoard,NewTurn,Dim,NewScore1,NewScore2);
+            %comparar pontos e finalizar 
+            util:printBoard(NewBoard,Dim),
+            winner(Score1,Score2,Syb1,Syb2)
+        );
+        (write('\n\nInválido! tente novamente\n'),
+        round_machine([Syb1,Syb2],Board,Turn,Dim,Score1,Score2)));
+        (length(Board, Length),
+         random_between(1,Length,R), util:checkFree(Board,R) ->
+            (util:setCell(Board,R,Syb,NewBoard),
+            changeTurn(Turn,NewTurn),
+            (util:checkBoardFree(NewBoard) ->
+                %somar pontos, continuar jogo
+                updateScore(Score1,Score2,Turn,R,Board,Dim,Syb,NewScore1,NewScore2),
+                round_machine([Syb1,Syb2],NewBoard,NewTurn,Dim,NewScore1,NewScore2);
+                %comparar pontos e finalizar 
+                util:printBoard(NewBoard,Dim),
+                winner(Score1,Score2,Syb1,Syb2)
+            );
+            (round_machine([Syb1,Syb2],Board,Turn,Dim,Score1,Score2))
+            ))
+        ).
 
 
 changeTurn(1,2).
