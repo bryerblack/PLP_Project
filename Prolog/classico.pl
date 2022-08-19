@@ -1,46 +1,86 @@
-createBoard(0,[]).
-createBoard(X,['_'|T]):- Z is X-1, createBoard(Z,T).
+:- module(classico, []).
+:- use_module(util).
 
-render3x3([Ax,Bx,Cx,Dx,Ex,Fx,Gx,Hx,Ix]):- 
-                                      writef('|%w|%w|%w|', [Ax,Bx,Cx]),
-                                   nl,writef('|%w|%w|%w|', [Dx,Ex,Fx]),
-                                   nl,writef('|%w|%w|%w|', [Gx,Hx,Ix]),nl,nl.
 
-checkFree(B,Indx,R):- nth1(Indx,B,'_'), R = true; R = false.
+startGame(Player, Syb) :- 
+    util:createBoard(9,Board),nl,nl,nl,
+    (Player = 0 -> 
+        util:atomList(Syb, ListSyb),
+        round_player(ListSyb, Board,1);
+        util:atomList(Syb, ListSyb),
+        round_machine(ListSyb, Board,1)),
 
-setCell([_|T],1,Syb,[Syb|T]).
-setCell([H|T],Indx,Syb,[H|R]):- Indx > 1, Indx1 is Indx - 1, setCell(T,Indx1,Syb,R), !.
-setCell(L,_,_,L).
+    write('Pressione qualquer tecla para continuar...\n\n'),
+    get_single_char(_).
 
-switchPlayer(Board, Player, Symbol):- isWinner(Board, Symbol), format('o jogador ~w venceu!', [Player]).
-switchPlayer(Board, Player, Symbol):- \+ isWinner(Board, Symbol), Player == 1, NewPlayer is Player + 1, NewSymbol = 'O', playRound(Board, NewPlayer, NewSymbol).
-switchPlayer(Board, Player, Symbol):- \+ isWinner(Board, Symbol), Player == 2, NewPlayer is Player - 1, NewSymbol = 'X', playRound(Board, NewPlayer, NewSymbol).
 
-isWinner(Board, Symbol):- (nth1(1, Board, Symbol), nth1(2, Board, Symbol), nth1(3, Board, Symbol));
+
+round_player([Symbol1, Symbol2|[]], Board, Turn):-
+    format('~w: Jogador 1   ~w: Jogador 2\n\n', [Symbol1, Symbol2]),
+    util:printBoard(Board,3), nl,
+    (Turn = 1 -> P = 'Jogador 1', Syb = Symbol1; P = 'Jogador 2', Syb = Symbol2),
+    format('Turno: ~w\n',P),
+    (util:readPos(3,3,Index), util:checkFree(Board,Index)->
+        util:printMsg,
+        util:setCell(Board,Index,Syb,NewBoard),
+        changeTurn(Turn,NewTurn),
+        (util:checkBoardFree(NewBoard) ->
+            (isWinner(NewBoard,Syb)->
+                % vencedor
+                util:printBoard(NewBoard,3),
+                format('\n\nVencedor! ~w ~w venceu\n\n',[P,Syb]);
+                % continuar jogo
+                round_player([Symbol1,Symbol2],NewBoard,NewTurn)
+            );
+            % empate
+            util:printBoard(NewBoard,3),
+            write('\n\nEmpate!!\n\n')
+        );
+        write('\n\nInválido! tente novamente\n'),
+        round_player([Symbol1,Symbol2],Board,Turn)
+    ). 
+
+
+round_machine([Symbol1, Symbol2|[]], Board, Turn):-
+    format('~w: Jogador 1   ~w: Máquina\n\n', [Symbol1, Symbol2]),
+    util:printBoard(Board,3), nl,
+    (Turn = 1 -> P = 'Jogador 1', Syb = Symbol1; P = 'Máquina', Syb = Symbol2),
+    format('Turno: ~w\n',P),
+    (Turn == 1, util:readPos(3,3,Index), util:checkFree(Board,Index)->
+        util:printMsg,
+        util:setCell(Board,Index,Syb,NewBoard),
+        changeTurn(Turn,NewTurn),
+        (util:checkBoardFree(NewBoard) ->
+            (isWinner(NewBoard,Syb)->
+                % vencedor
+                util:printBoard(NewBoard,3),
+                format('\n\nVencedor! ~w ~w venceu\n\n',[P,Syb]);
+                % continuar jogo
+                round_machine([Symbol1,Symbol2],NewBoard,NewTurn)
+            );
+            % empate
+            util:printBoard(NewBoard,3),
+            write('\n\nEmpate!!\n\n')
+        );
+        write('\n\nInválido! tente novamente\n'),
+        round_machine([Symbol1,Symbol2],Board,Turn)
+    );
+    (Turn == 2, length(Board, Length), random(1, 9, Indx), util:checkFree(Board, Indx) ->
+        (setCell(Board, Indx, Symbol2, NewBoard),
+        changeTurn(Turn, NewTurn), round_machine([Symbol1,Symbol2],NewBoard,NewTurn));
+        (round_machine([Symbol1,Symbol2],Board,Turn))).
+
+
+changeTurn(1,2).
+changeTurn(2,1).
+
+
+isWinner(Board, Symbol):- 
+    (nth1(1, Board, Symbol), nth1(2, Board, Symbol), nth1(3, Board, Symbol));
     (nth1(4, Board, Symbol), nth1(5, Board, Symbol), nth1(6, Board, Symbol));
     (nth1(7, Board, Symbol), nth1(8, Board, Symbol), nth1(9, Board, Symbol));
     (nth1(1, Board, Symbol), nth1(4, Board, Symbol), nth1(7, Board, Symbol));
     (nth1(2, Board, Symbol), nth1(5, Board, Symbol), nth1(8, Board, Symbol));
     (nth1(3, Board, Symbol), nth1(6, Board, Symbol), nth1(9, Board, Symbol));
     (nth1(1, Board, Symbol), nth1(5, Board, Symbol), nth1(9, Board, Symbol));
-    (nth1(3, Board, Symbol), nth1(5, Board, Symbol), nth1(7, Board, Symbol));
-    \+ member('_', Board), write('empate!'), halt.
-
-playRound(Board, Player, Symbol):- write('insira posicao: '), read(Indx),
-    checkFree(Board, Indx, R), R == true, setCell(Board, Indx, Symbol, NewBoard),
-    nl, render3x3(NewBoard), switchPlayer(NewBoard, Player, Symbol).
-
-playRound(Board, Player, Symbol):- checkFree(Board, Indx, R), R == false,
-    write('posicao invalida, tente novamente.'),
-    nl, playRound(Board, Player, Symbol).
-
-machineRound(Board, Symbol):- random_between(1, 9, Indx),
-    checkFree(Board, Indx, R), R == true, setCell(Board, Indx, Symbol, NewBoard),
-    nl, render3x3(NewBoard).
-
-machineRound(Board, Symbol):- random_between(1, 9, Indx),
-    checkFree(Board, Indx, R), R == false, machineRound(Board, Symbol).
-
-main:- createBoard(9, Board),
-    nl, render3x3(Board),
-    playRound(Board, 1, 'X').
+    (nth1(3, Board, Symbol), nth1(5, Board, Symbol), nth1(7, Board, Symbol)).
