@@ -6,12 +6,16 @@ startGame(Player, Syb) :-
     util:createBoard(9,Board),nl,nl,nl,
     (Player = 0 -> 
         round_player(Syb, Board,1);
-        round_machine),
+        round_machine(Syb,Board,1)),
 
     write('Pressione qualquer tecla para continuar...\n\n'),
     get_single_char(_).
 
-
+/*
+teste:-
+    util:createBoard(9,Board),
+    round_machine(['X','O'],Board,1).
+*/
 
 round_player([Syb1,Syb2|[]],Board,Turn):-
     format('~w: Jogador 1   ~w: Jogador 2\n\n', [Syb1, Syb2]),
@@ -39,12 +43,67 @@ round_player([Syb1,Syb2|[]],Board,Turn):-
     ). 
 
 
+round_machine([Symbol1, Symbol2|[]], Board, 1):-
+    format('~w: Jogador 1   ~w: Máquina\n\n', [Symbol1, Symbol2]),
+    util:printBoard(Board,3),nl,
+    P = 'Jogador 1', Syb = Symbol1, Turn = 1,
+    format('Turno: ~w\n',P),
+    (util:readPos(3,3,Index), util:checkFree(Board,Index) ->
+        util:printMsg,
+        util:setCell(Board,Index,Syb,NewBoard),
+        changeTurn(Turn,NewTurn),
+        (util:checkBoardFree(NewBoard) ->
+            (isWinner(NewBoard,Syb)->
+                % vencedor
+                util:printBoard(NewBoard,3),
+                format('\n\nVencedor! ~w ~w venceu\n\n',[P,Syb]);
+                % continuar jogo
+                round_machine([Symbol1,Symbol2],NewBoard,NewTurn)
+            );
+            (isWinner(NewBoard,Syb) ->
+                (util:printBoard(NewBoard,3),
+                format('\n\nVencedor! ~w ~w venceu\n\n',[P,Syb]));
+                (util:printBoard(NewBoard,3),
+                write('\n\nEmpate!!\n\n'))
+                )
+        );
+        write('\n\nInválido! tente novamente\n'),
+        round_machine([Symbol1,Symbol2],Board,Turn)
+    ).
 
-round_machine:- write('nada'), nl.
 
+round_machine([Symbol1, Symbol2|[]], Board, 2):-
+    format('~w: Jogador 1   ~w: Máquina\n', [Symbol1, Symbol2]),
+    util:printBoard(Board,3),nl,
+    P = 'Máquina', Syb = Symbol2,Turn = 2,
+    format('Turno: ~w\n\n',P),
 
+    moveMachine(Board,R),
+    (util:setCell(Board,R,Syb,NewBoard),
+        changeTurn(Turn,NewTurn),
+        (util:checkBoardFree(NewBoard) ->
+            (isWinner(NewBoard,Syb) ->
+                % vencedor
+                util:printBoard(NewBoard,3),
+                format('\n\nVencedor! ~w ~w venceu\n\n',[P,Syb]);
+                % continuar jogo
+                util:printBoard(NewBoard,3),
+                write('\nPressione qualquer tecla para continuar...\n\n'),
+                get_single_char(_),
+                round_machine([Symbol1,Symbol2],NewBoard,NewTurn)
+            );
+            % empate
+            util:printBoard(NewBoard,3),
+            write('\n\nEmpate!!\n\n')
+        )
+    ).
 
-
+moveMachine(Board,R):-
+    random_between(1,9,R2),
+    (util:checkFree(Board,R2) ->
+        R = R2;
+        moveMachine(Board,R)
+    ).
 
 changeTurn(1,2).
 changeTurn(2,1).

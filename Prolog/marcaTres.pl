@@ -11,18 +11,16 @@ startGame(Player, Syb, Dim) :-
         powerUps:sortPower(Power2),
         round_player(Syb,Board,1,Dim2,0,0,Power1,Power2);
         
-        powerUps:sortPower(Power1),
-        round_machine(Power1)
+        round_machine(Syb,Board,1,Dim2,0,0)
     ),
     write('Pressione qualquer tecla para continuar...\n\n'),
     get_single_char(_).
 
+/*
 teste:-
     util:createBoard(25,Board),
-    powerUps:sortPower(Power1),
-    powerUps:sortPower(Power2),
-    round_player(['X','O'],Board,1,5,0,0,Power1,Power2).
-
+    round_machine(['X','O'],Board,1,5,0,0).
+*/
 
 
 
@@ -35,11 +33,11 @@ round_player([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2,Power1,Power2):-
         P = 'Jogador 1', Syb = Syb1, Power = Power1; 
         P = 'Jogador 2', Syb = Syb2, Power = Power2),
     printPower(Turn,Power1,Power2),
+    write('Digite 00 para usar o Power-Up\n'),
     format('Turno: ~w\n',P),
     (readPos(Dim,Dim,Index)->
         (Index = 0 ->
             % chamou o poder
-                
             (Power = 0 ->
                 write('\n\nInválido! Poder já usado\n'),
                 round_player([Syb1,Syb2],Board,Turn,Dim,Score1,Score2,Power1,Power2);
@@ -47,10 +45,7 @@ round_player([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2,Power1,Power2):-
                 MultiDim is Dim*Dim,
                 powerUps:callPower(Board,MultiDim,Dim,Syb,Power,NewBoard),
                 changePower(Turn,Power1,Power2,NewPower1,NewPower2)
-
-            )
-            
-            ;
+            );
 
             % senao, checar se espaço está livre
             (util:checkFree(Board,Index) -> 
@@ -71,7 +66,7 @@ round_player([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2,Power1,Power2):-
             round_player([Syb1,Syb2],NewBoard,NewTurn,Dim,NewScore1,NewScore2,NewPower1,NewPower2);
             %comparar pontos e finalizar 
             util:printBoard(NewBoard,Dim),
-            winner(Score1,Score2,Syb1,Syb2)
+            winner(1,Score1,Score2,Syb1,Syb2)
         )
         ;
         write('\n\nInválido! tente novamente\n'),
@@ -82,7 +77,98 @@ round_player([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2,Power1,Power2):-
 
 
 
-round_machine:- write('nada'), nl.
+
+
+
+round_machine([Syb1,Syb2|[]],Board,1,Dim,Score1,Score2):-
+    format('~w: Jogador 1   ~w: Máquina\n', [Syb1, Syb2]),
+    format('~w: ~w           ~w: ~w\n\n', [Syb1,Score1,Syb2,Score2]),
+    util:printBoard(Board,Dim),nl,
+    P = 'Jogador 1', Syb = Syb1, Turn = 1,
+    format('Turno: ~w\n',P),
+    ( util:readPos(Dim,Dim,Index), util:checkFree(Board,Index)->
+        util:printMsg,
+        util:setCell(Board,Index,Syb,NewBoard),
+        changeTurn(Turn,NewTurn),
+        (util:checkBoardFree(NewBoard) ->
+            %somar pontos, continuar jogo
+            updateScore(Score1,Score2,Turn,Index,Board,Dim,Syb,NewScore1,NewScore2),
+            round_machine([Syb1,Syb2],NewBoard,NewTurn,Dim,NewScore1,NewScore2);
+            %comparar pontos e finalizar 
+            util:printBoard(NewBoard,Dim),
+            winner(2,Score1,Score2,Syb1,Syb2)
+        );
+        write('\n\nInválido! tente novamente\n'),
+        round_machine([Syb1,Syb2],Board,Turn,Dim,Score1,Score2)
+    ).
+
+
+round_machine([Syb1,Syb2|[]],Board,2,Dim,Score1,Score2):-
+    format('~w: Jogador 1   ~w: Máquina\n', [Syb1, Syb2]),
+    format('~w: ~w           ~w: ~w\n\n', [Syb1,Score1,Syb2,Score2]),
+    util:printBoard(Board,Dim),nl,
+    P = 'Máquina', Syb = Syb2, Turn =2,
+    format('Turno: ~w\n',P),
+    moveMachine(Board, R),
+    
+    util:setCell(Board,R,Syb,NewBoard),
+    changeTurn(Turn,NewTurn),            
+    (util:checkBoardFree(NewBoard) ->
+        %somar pontos, continuar jogo
+        util:printBoard(NewBoard,Dim),
+        write('\nPressione qualquer tecla para continuar...\n\n'),
+        get_single_char(_),
+        updateScore(Score1,Score2,Turn,R,Board,Dim,Syb,NewScore1,NewScore2),
+        round_machine([Syb1,Syb2],NewBoard,NewTurn,Dim,NewScore1,NewScore2)
+        ;
+        %comparar pontos e finalizar 
+        util:printBoard(NewBoard,Dim),
+        winner(2,Score1,Score2,Syb1,Syb2)
+    ).
+
+
+
+
+moveMachine(Board, R):-
+    length(Board, Length),
+    random_between(1,Length,R2),
+    (util:checkFree(Board,R2) ->
+        R = R2;
+        moveMachine(Board, R)
+    ).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 changeTurn(1,2).
@@ -102,7 +188,7 @@ readPos(Col,Line,Index):-
 printPower(1,Power1,_):- print_p(Power1).
 printPower(2,_,Power2):- print_p(Power2).
 
-print_p(0):- write('Power: Esgotado\n').
+print_p(0):- write('Power: Esgotado!\n').
 print_p(1):- write('Power: Remove Jogada\n').
 print_p(2):- write('Power: Lupin\n').
 print_p(3):- write('Power: Blip\n').
@@ -115,12 +201,20 @@ changePower(2,Power1,_,Power1,0).
 
 
 % verificar vencedor ou empate
-winner(Score,Score,_,_):-
+winner(1,Score,Score,_,_):-
     write('\n\nEmpate!!\n\n').
-winner(Score1,Score2,Syb1,Syb2):-
+winner(1,Score1,Score2,Syb1,Syb2):-
     (Score1 > Score2 -> 
         format('\n\nVencedor! Jogador 1 ~w venceu com ~w\n\n',[Syb1,Score1]);
         format('\n\nVencedor! Jogador 2 ~w venceu com ~w\n\n',[Syb2,Score2])
+    ).
+
+winner(2,Score,Score,_,_):-
+    write('\n\nEmpate!!\n\n').
+winner(2,Score1,Score2,Syb1,Syb2):-
+    (Score1 > Score2 -> 
+        format('\n\nVencedor! Jogador 1 ~w venceu com ~w\n\n',[Syb1,Score1]);
+        format('\n\nVencedor! Maquina ~w venceu com ~w\n\n',[Syb2,Score2])
     ).
 
 
