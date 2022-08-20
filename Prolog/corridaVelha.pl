@@ -1,31 +1,49 @@
 :- module(corridaVelha, []).
 :- use_module(util).
+:- use_module(powerUps).
 
 startGame(Syb, Dim) :-
     (Dim = 0 -> 
-        Turn = [1,2,3], MultDim = 21; 
-        Turn = [1,2,3,4], MultDim = 36),
+        Turn = [1,2,3], MultDim = 21,
+        sortPower(Power1),
+        sortPower(Power2),
+        sortPower(Power3),
+        Power = [Power1,Power2,Power3];
+ 
+        Turn = [1,2,3,4], MultDim = 36,
+        sortPower(Power1),
+        sortPower(Power2),
+        sortPower(Power3),
+        sortPower(Power4),
+        Power = [Power1,Power2,Power3,Power4]
+    ),
         
     util:createBoard(MultDim,Board),nl,nl,nl,
-    playRound(Syb,Board,Turn).
+    playRound(Syb,Board,Turn,Power).
 
-
+sortPower(Power):- random(1,5,Power).
 
 teste:-
     util:createBoard(21,Board),nl,nl,nl,
-    playRound(['X','O','A'],Board,[1,2,3]).
+
+    sortPower(Power1),
+    sortPower(Power2),
+    sortPower(Power3),
+    Power = [Power1,Power2,Power3],
+
+    playRound(['X','O','A'],Board,[1,2,3],Power).
 
 
-playRound(ListSyb,Board,Turn):-
+playRound(ListSyb,Board,Turn,Power):-
     length(ListSyb,QtdPlayer),
-    round_player(ListSyb,Board,Turn,Board2,R),
+    round_player(ListSyb,Board,Turn,Board2,Power,Power2,R),
     (R = 0 -> 
         write('\nRodada dos jogadores finalizada.\n'),
         write('Pressione qualquer tecla para atirar laser...\n\n'),
         get_single_char(_),
         round_machine(Board2,QtdPlayer,NewBoard),
         rotateList(Turn, NewTurn),
-        playRound(ListSyb,NewBoard,NewTurn);
+        playRound(ListSyb,NewBoard,NewTurn,Power2);
 
         write('Pressione qualquer tecla para continuar...\n\n'),
         get_single_char(_)  
@@ -34,21 +52,38 @@ playRound(ListSyb,Board,Turn):-
 
 
 
-round_player(ListSyb,NewBoard,[],NewBoard,0):-
+round_player(ListSyb,NewBoard,[],NewBoard,NewPower,NewPower,0):-
     length(ListSyb,QtdPlayer),
     printPlayer(ListSyb),
     util:printBoard(NewBoard,QtdPlayer),nl.
-round_player(ListSyb,Board,[H_Turn|T_Turn],NewBoard,R):-
+
+round_player(ListSyb,Board,[H_Turn|T_Turn],NewBoard,Power,NewPower,R):-
     length(ListSyb,QtdPlayer),
-    (QtdPlayer = 3 -> Col = 7;Col=9),
+    (QtdPlayer = 3 -> Line = 7, MultDim = 21;Line=9, MultDim=36),
     printPlayer(ListSyb),
     util:printBoard(Board,QtdPlayer), nl,
     turn(H_Turn,P,ListSyb,Syb),
+    printPower(H_Turn,Power,T_power),
+    write('Digite 0 para usar o Power-Up\n'),
     format('Turno: ~w\n',P),
-    (readPos(QtdPlayer,Col,Board,Syb,Index), util:checkFree(Board,Index) ->
-        
-        util:setCell(Board,Index,Syb,NewBoard2),
-        (Index =< QtdPlayer ->
+    (readPos(QtdPlayer,Line,Board,Syb,Index) ->
+        (Index = 0 ->
+            % chamou poder
+            powerUps:callPower(Board,MultDim,QtdPlayer,Line,Syb,T_power,NewBoard2,Index2),
+            changePower(H_Turn,Power,NewPower2)
+            ;
+            % senao, checar se espaço está livre
+            Index2 = Index,
+            (util:checkFree(Board,Index) ->
+                util:setCell(Board,Index,Syb,NewBoard2),
+                NewPower2 = Power;
+
+                write('\n\nInválido! tente novamente\n'),
+                round_player(ListSyb,Board,[H_Turn|T_Turn],NewBoard,Power,NewPower,R)
+            )
+
+        ),
+        (Index2 =< QtdPlayer, Index2 =\= 0->
             % se chegar na primeira linha, vence
             nl,nl,nl,
             util:printBoard(NewBoard2,QtdPlayer),
@@ -56,21 +91,20 @@ round_player(ListSyb,Board,[H_Turn|T_Turn],NewBoard,R):-
             R=1;
             % continuar jogo
             util:printMsg,
-            round_player(ListSyb,NewBoard2,T_Turn,NewBoard,0)
-        )
-        ;
+            round_player(ListSyb,NewBoard2,T_Turn,NewBoard,NewPower2,NewPower,0)
+        );
         write('\n\nInválido! tente novamente\n'),
-        round_player(ListSyb,Board,[H_Turn|T_Turn],NewBoard,R)
+        round_player(ListSyb,Board,[H_Turn|T_Turn],NewBoard,Power,NewPower,R)
     ).
 
 round_machine(Board,Col,NewBoard):-
-    %Col2 is Col+1,
-    %random(0,Col2,Col3),
-    Col3 is 0,
+    Col2 is Col+1,
+    random(0,Col2,Col3),
+    %Col3 is 0,
     (Col3 = 0 -> 
         write('Laser Pifou! Nenhuma coluna destruida!!\n'),
         NewBoard = Board;
-        format('Laser destrui coluna ~w!!\n',Col3),
+        format('Laser destriu coluna ~w!!\n',Col3),
         deleteCol(Board,Col,1,Col3,NewBoard)
     ).
 
@@ -87,11 +121,37 @@ turn(3,'Jogador 3',[_,_,Syb3|_],Syb3).
 turn(4,'Jogador 4',[_,_,_,Syb4|_],Syb4).
 
 
+printPower(1,[Power1|_],Power1):- powerUps:print_p(Power1).
+printPower(2,[_,Power2|_],Power2):- powerUps:print_p(Power2).
+printPower(3,[_,_,Power3|_],Power3):- powerUps:print_p(Power3).
+printPower(4,[_,_,_,Power4|_],Power4):- powerUps:print_p(Power4).
+
+
+
+% colocar 0 no poder que foi usado
+changePower(1,[_,Power2,Power3|[]],[0,Power2,Power3|[]]).
+changePower(1,[_,Power2,Power3,Power4|[]],[0,Power2,Power3,Power4|[]]).
+
+changePower(2,[Power1,_,Power3|[]],[Power1,0,Power3|[]]).
+changePower(2,[Power1,_,Power3,Power4|[]],[Power1,0,Power3,Power4|[]]).
+
+changePower(3,[Power1,Power2,_|[]],[Power1,Power2,0|[]]).
+changePower(3,[Power1,Power2,_,Power4|[]],[Power1,Power2,0,Power4|[]]).
+
+changePower(4,[Power1,Power2,Power3,_|_],[Power1,Power2,Power3,0]).
+
+
+
 readPos(Col,Line,Board,Syb,Index):-
     readX(X),
-    nextLine(Board,Col,Line,Syb,Y),
-    util:checkInRange(Col,Line,X,Y),
-    util:transformePos(X,Y,Col,Index).
+    ( X = 0 ->
+        Index = 0;
+
+        nextLine(Board,Col,Line,Syb,Y),
+        util:checkInRange(Col,Line,X,Y),
+        util:transformePos(X,Y,Col,Index)
+    ).
+
 
 readX(R):-
     write('Escolha uma coluna:\n'),

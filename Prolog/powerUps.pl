@@ -14,8 +14,9 @@ blip(Dim, NewBoard):-
 
 
 % ajeitar?
-jogarSorte(Board, Syb, Dim, NewBoard):- 
-    random(0,Dim, R),
+jogarSorte(Board, Syb, Dim, NewBoard,R):- 
+    Dim2 is Dim + 1,
+    random(0,Dim2, R),
     (R == 0 -> 
         write('Azar! Nada ocorreu'),nl, 
         NewBoard = Board
@@ -62,14 +63,16 @@ getInfLeftDiag(X,Y,Col,Indx):-
     ((X-1) >= 1, (Y+1) =< Col) -> util:transformePos(X-1,Y+1,Col,Indx).
 getInfLeftDiag(_,_,_,0).
 
-sortPower(Power):- random(1,5,Power).
 
-callPower(Board,_,_,_,0,Board).
 
-callPower(Board,Dim,Col,Syb,1,NewBoard):-
+
+
+callPower(Board,_,_,_,_,0,Board,0).
+
+callPower(Board,Dim,Col,Lin,Syb,1,NewBoard,Indx2):-
     write('Para ser apagada...\n'),
-    util:readPos(Col,Col,Indx),
-
+    util:readPos(Col,Lin,Indx),
+    Indx2 = Indx,
     (util:checkFree(Board,Indx),  nth1(Indx, Board, Syb) -> 
         write('posicao inválida!'),
         callPower(Board,Dim,Col,Syb,1,NewBoard)
@@ -78,10 +81,10 @@ callPower(Board,Dim,Col,Syb,1,NewBoard):-
         write('\n\nOps! Posição Apagada hihi'),nl
     ).
     
-callPower(Board,Dim,Col,Syb,2,NewBoard):-
+callPower(Board,Dim,Col,Lin,Syb,2,NewBoard,Indx2):-
     write('Para roubar peça...\n'),
-    util:readPos(Col,Col,Indx),
-
+    util:readPos(Col,Lin,Indx),
+    Indx2 = Indx,
     (util:checkFree(Board,Indx),  nth1(Indx, Board, Syb) -> 
         write('posicao inválida!'),
         callPower(Board,Dim,Col,Syb,1,NewBoard)
@@ -90,18 +93,26 @@ callPower(Board,Dim,Col,Syb,2,NewBoard):-
         write('\n\nEssa posição será uma ótima adição à minha coleção!'),nl
     ).
     
-callPower(_,Dim,_,_,3,NewBoard):-
+callPower(_,Dim,_,_,_,3,NewBoard,0):-
     blip(Dim,NewBoard),
     write('\n\nEu sou inevitável'),nl.
 
-callPower(Board,Dim,_,Syb,4,NewBoard):-
+callPower(Board,Dim,_,_,Syb,4,NewBoard,Indx):-
     write('\nE qual será a posição da vez? ...'),nl,
-    jogarSorte(Board,Syb,Dim,NewBoard).
+    jogarSorte(Board,Syb,Dim,NewBoard,Indx).
     
-callPower(Board,Dim,Col,Syb,5,NewBoard):-
+callPower(Board,Dim,Col,_,Syb,5,NewBoard,_):-
     util:readXY(Pos),
     util:checkInRange(Pos),
     bomba(Board,Syb,Col,Dim,Pos,NewBoard).
+
+
+print_p(0):- write('Power: Esgotado!\n').
+print_p(1):- write('Power: Remove Jogada\n').
+print_p(2):- write('Power: Lupin\n').
+print_p(3):- write('Power: Blip\n').
+print_p(4):- write('Power: Jogar Sorte\n').
+print_p(5):- write('Power: Bomba\n').
 
 /*
 test:- util:createBoard(9,Board),
@@ -124,3 +135,13 @@ test:- util:createBoard(9,Board),
 testPop:- util:createBoard(9,Board),
         popDiags(Board,3,3,3,9,'X',4,NewBoard),
         write(NewBoard). */
+
+test:- 
+    util:createBoard(21,Board),
+    util:setCell(Board,20,'X',Board1),
+    %write('2\n'),
+    util:printBoard(Board1,3),nl,
+    %write('3\n'),
+    callPower(Board1,21,3,7,'O',1,NewBoard),
+    %write('4\n'),
+    util:printBoard(NewBoard,3).

@@ -7,15 +7,17 @@ startGame(Player, Syb, Dim) :-
     (Dim = 0 -> Dim2 = 5, MultDim = 25; Dim2 = 7, MultDim = 49),
     util:createBoard(MultDim,Board),nl,nl,nl,
     (Player = 0 ->
-        powerUps:sortPower(Power1),
-        powerUps:sortPower(Power2),
+        sortPower(Power1),
+        sortPower(Power2),
         round_player(Syb,Board,1,Dim2,0,0,Power1,Power2);
 
-        powerUps:sortPower(Power),
+        sortPower(Power),
         round_machine(Syb,Board,1,Dim2,0,0,Power)
     ),
     write('Pressione qualquer tecla para continuar...\n\n'),
     get_single_char(_).
+
+sortPower(Power):- random(1,6,Power).
 
 /*
 teste:-
@@ -42,7 +44,8 @@ round_player([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2,Power1,Power2):-
                 round_player([Syb1,Syb2],Board,Turn,Dim,Score1,Score2,Power1,Power2);
                 
                 MultiDim is Dim*Dim,
-                powerUps:callPower(Board,MultiDim,Dim,Syb,Power,NewBoard),
+                powerUps:callPower(Board,MultiDim,Dim,Dim,Syb,Power,NewBoard,Index),
+                % CheckPower = Power,
                 changePower(Turn,Power1,Power2,NewPower1,NewPower2)
             );
             % senao, checar se espaço está livre
@@ -87,7 +90,7 @@ round_machine([Syb1,Syb2|[]],Board,1,Dim,Score1,Score2,Power):-
                 round_machine([Syb1,Syb2],Board,Turn,Dim,Score1,Score2,Power);
                 % poder disponivel
                 MultiDim is Dim*Dim,
-                powerUps:callPower(Board,MultiDim,Dim,Syb,Power,NewBoard),
+                powerUps:callPower(Board,MultiDim,Dim,Dim,Syb,Power,NewBoard,Index),
                 NewPower = 0
             );
             % senao nao chamou poder, checar se espaço está livre
@@ -161,18 +164,11 @@ readPos(Col,Line,Index):-
     ).
 
 
-printPower(1,Power1,_):- print_p(Power1).
-printPower(2,_,Power2):- print_p(Power2).
+printPower(1,Power1,_):- powerUps:print_p(Power1).
+printPower(2,_,Power2):- powerUps:print_p(Power2).
 
-print_p(0):- write('Power: Esgotado!\n').
-print_p(1):- write('Power: Remove Jogada\n').
-print_p(2):- write('Power: Lupin\n').
-print_p(3):- write('Power: Blip\n').
-print_p(4):- write('Power: Jogar Sorte\n').
-print_p(5):- write('Power: Bomba\n').
 
 % colocar 0 no poder que foi usado
-
 changePower(1,_,Power2,0,Power2).
 changePower(2,Power1,_,Power1,0).
 
@@ -201,6 +197,8 @@ updateScore(Score1,Score2,1,Index,Board,Dim,Syb,NewScore,Score2):-
 updateScore(Score1,Score2,2,Index,Board,Dim,Syb,Score1,NewScore):-
     sumScore(Index,Board,Dim,Syb,R),
     NewScore is Score2+R.
+
+
 
 
 sumScore(Index,Board,Dim,Syb,R):-
