@@ -72,7 +72,7 @@ round_machine([Syb1,Syb2|[]],Board,1,Dim,Score1,Score2,Power):-
     format('~w: ~w           ~w: ~w\n\n', [Syb1,Score1,Syb2,Score2]),
     util:printBoard(Board,Dim),nl,
     P = 'Jogador 1', Syb = Syb1, Turn = 1,
-    print_p(Power),
+    powerUps:print_p(Power),
     write('Digite 00 para usar o Power-Up\n'),
     format('Turno: ~w\n',P),
     (readPos(Dim,Dim,Index) ->

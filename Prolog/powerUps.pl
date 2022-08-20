@@ -15,13 +15,14 @@ blip(Dim, NewBoard):-
 
 
 jogarSorte(Board, Syb, Dim, NewBoard,R):- 
-    Dim2 is Dim + 1,
-    random(0,Dim2, R),
-    (R == 0 -> 
+    random(0,Dim, R2),
+    (R2 == 0 -> 
         write('Azar! Nada ocorreu'),nl, 
-        NewBoard = Board
+        NewBoard = Board,
+        R = 0
         ;
-        util:setCell(Board, R, Syb, NewBoard)
+        util:setCell(Board, R2, Syb, NewBoard),
+        R = R2
     ),!.
 
 
