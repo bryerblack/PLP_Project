@@ -1,7 +1,7 @@
 :- module(powerUps, []).
 :- use_module(util).
 
-% Tentar fazer repetição de rodada antes de apagar o espaço no lugar de rodada inválida
+
 removeJogada(Board, Indx, NewBoard):- 
     util:setCell(Board, Indx, '_', NewBoard).
 
@@ -13,7 +13,7 @@ blip(Dim, NewBoard):-
     util:createBoard(Dim, NewBoard).
 
 
-% ajeitar?
+
 jogarSorte(Board, Syb, Dim, NewBoard,R):- 
     Dim2 is Dim + 1,
     random(0,Dim2, R),
@@ -114,34 +114,3 @@ print_p(3):- write('Power: Blip\n').
 print_p(4):- write('Power: Jogar Sorte\n').
 print_p(5):- write('Power: Bomba\n').
 
-/*
-test:- util:createBoard(9,Board),
-    util:setCell(Board, 5, 'X', Board1),
-    util:printBoard(Board1, 3),nl,
-    removeJogada(Board1, 'O', 5, 3),nl,nl,nl,
-    util:setCell(Board, 5, 'X', Board2),
-    util:printBoard(Board2, 3),nl,
-    lupin(Board2, 'O', 5, 3),nl,nl,nl,
-    util:setCell(Board,5,'X',Board3),
-    util:setCell(Board3,6,'O',Board4),
-    util:printBoard(Board4, 3),nl,
-    blip(9,3),nl,nl,nl,
-    jogarSorte(Board, 'A', 3, 9),nl,nl,nl,
-    jogarSorte(Board, 'A', 3, 9),nl,nl,nl,
-    bomba(Board,'B',3,9,2,2),nl,nl,nl,
-    bomba(Board,'H',3,9,1,2),nl,nl,nl,
-    bomba(Board,'H',3,9,3,3).
-
-testPop:- util:createBoard(9,Board),
-        popDiags(Board,3,3,3,9,'X',4,NewBoard),
-        write(NewBoard). */
-
-test:- 
-    util:createBoard(21,Board),
-    util:setCell(Board,20,'X',Board1),
-    %write('2\n'),
-    util:printBoard(Board1,3),nl,
-    %write('3\n'),
-    callPower(Board1,21,3,7,'O',1,NewBoard),
-    %write('4\n'),
-    util:printBoard(NewBoard,3).

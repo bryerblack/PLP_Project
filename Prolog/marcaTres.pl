@@ -19,11 +19,6 @@ startGame(Player, Syb, Dim) :-
 
 sortPower(Power):- random(1,6,Power).
 
-/*
-teste:-
-    util:createBoard(25,Board),
-    round_machine(['X','O'],Board,1,5,0,0).
-*/
 
 
 round_player([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2,Power1,Power2):-
@@ -44,8 +39,7 @@ round_player([Syb1,Syb2|[]],Board,Turn,Dim,Score1,Score2,Power1,Power2):-
                 round_player([Syb1,Syb2],Board,Turn,Dim,Score1,Score2,Power1,Power2);
                 
                 MultiDim is Dim*Dim,
-                powerUps:callPower(Board,MultiDim,Dim,Dim,Syb,Power,NewBoard,Index),
-                % CheckPower = Power,
+                powerUps:callPower(Board,MultiDim,Dim,Dim,Syb,Power,NewBoard,_),
                 changePower(Turn,Power1,Power2,NewPower1,NewPower2)
             );
             % senao, checar se espaço está livre
@@ -90,7 +84,7 @@ round_machine([Syb1,Syb2|[]],Board,1,Dim,Score1,Score2,Power):-
                 round_machine([Syb1,Syb2],Board,Turn,Dim,Score1,Score2,Power);
                 % poder disponivel
                 MultiDim is Dim*Dim,
-                powerUps:callPower(Board,MultiDim,Dim,Dim,Syb,Power,NewBoard,Index),
+                powerUps:callPower(Board,MultiDim,Dim,Dim,Syb,Power,NewBoard,_),
                 NewPower = 0
             );
             % senao nao chamou poder, checar se espaço está livre

@@ -23,15 +23,6 @@ startGame(Syb, Dim) :-
 
 sortPower(Power):- random(1,5,Power).
 
-teste:-
-    util:createBoard(21,Board),nl,nl,nl,
-
-    sortPower(Power1),
-    sortPower(Power2),
-    sortPower(Power3),
-    Power = [Power1,Power2,Power3],
-
-    playRound(['X','O','A'],Board,[1,2,3],Power).
 
 
 playRound(ListSyb,Board,Turn,Power):-
@@ -100,7 +91,6 @@ round_player(ListSyb,Board,[H_Turn|T_Turn],NewBoard,Power,NewPower,R):-
 round_machine(Board,Col,NewBoard):-
     Col2 is Col+1,
     random(0,Col2,Col3),
-    %Col3 is 0,
     (Col3 = 0 -> 
         write('Laser Pifou! Nenhuma coluna destruida!!\n'),
         NewBoard = Board;
